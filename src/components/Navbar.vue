@@ -2,17 +2,16 @@
   <nav class="navbar">
     <div class="container">
       <div class="nav-content">
-        <router-link to="/admin" class="logo">
+        <router-link to="/" class="logo">
           BB
         </router-link>
         
         <div class="nav-links" :class="{ active: isMenuOpen }">
-          <a href="#home" @click="closeMenu" class="nav-link">Home</a>
-          <a href="#timeline" @click="closeMenu" class="nav-link">Jornada</a>
-          <a href="#projetos" @click="closeMenu" class="nav-link">Projetos</a>
-          <a href="#tecnologias" @click="closeMenu" class="nav-link">Tecnologias</a>
-          <a href="#sobre" @click="closeMenu" class="nav-link">Sobre</a>
-          <a href="#contato" @click="closeMenu" class="nav-link">Contato</a>
+          <a @click="navigateToSection('home')" class="nav-link">Home</a>
+          <a @click="navigateToSection('projetos')" class="nav-link">Projetos</a>
+          <a @click="navigateToSection('tecnologias')" class="nav-link">Tecnologias</a>
+          <a @click="navigateToSection('sobre')" class="nav-link">Sobre</a>
+          <a @click="navigateToSection('contato')" class="nav-link">Contato</a>
           
           <!-- Switch tema -->
           <label class="switch" @click="handleThemeToggle">
@@ -63,10 +62,13 @@
 
 <script>
 import { ref, inject } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 export default {
   name: 'Navbar',
   setup() {
+    const router = useRouter()
+    const route = useRoute()
     const isMenuOpen = ref(false)
     const themeContext = inject('theme')
     
@@ -78,7 +80,8 @@ export default {
         toggleTheme: () => {},
         toggleMenu: () => {},
         closeMenu: () => {},
-        handleThemeToggle: () => {}
+        handleThemeToggle: () => {},
+        navigateToSection: () => {}
       }
     }
     
@@ -98,13 +101,44 @@ export default {
       console.log('New mode:', isDarkMode.value)
     }
 
+    const navigateToSection = async (sectionId) => {
+      closeMenu()
+      
+      // Se estamos em qualquer página que não seja a home, navegar para home primeiro
+      if (route.path !== '/') {
+        console.log(`🧭 Navegando de ${route.path} para /#${sectionId}`)
+        await router.push('/')
+        
+        // Aguardar um pouco para garantir que a página carregou
+        setTimeout(() => {
+          const element = document.getElementById(sectionId)
+          if (element) {
+            element.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            })
+          }
+        }, 100)
+      } else {
+        // Se já estamos na home, apenas fazer scroll
+        const element = document.getElementById(sectionId)
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          })
+        }
+      }
+    }
+
     return {
       isMenuOpen,
       isDarkMode,
       toggleTheme,
       toggleMenu,
       closeMenu,
-      handleThemeToggle
+      handleThemeToggle,
+      navigateToSection
     }
   }
 }
@@ -149,6 +183,7 @@ export default {
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
+  cursor: pointer;
 }
 
 .nav-links .nav-link:hover,
