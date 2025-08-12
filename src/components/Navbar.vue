@@ -2,7 +2,7 @@
   <nav class="navbar">
     <div class="container">
       <div class="nav-content">
-        <router-link to="/" class="logo">
+        <router-link to="/admin" class="logo">
           BB
         </router-link>
         
