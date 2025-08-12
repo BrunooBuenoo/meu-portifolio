@@ -2025,6 +2025,7 @@ export default {
 }
 
 .admin-container {
+  margin-top:4rem;
   min-height: 100vh;
   background: var(--primary-bg);
   color: var(--text-primary);
