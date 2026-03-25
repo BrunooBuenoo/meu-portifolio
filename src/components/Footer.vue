@@ -60,9 +60,11 @@ export default {
 }
 
 .footer-section h3 {
-  color: var(--accent);
-  font-size: 1.5rem;
-  margin-bottom: 16px;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
 }
 
 .footer-section h4 {
@@ -90,7 +92,7 @@ export default {
 
 .footer-links a:hover,
 .social-links a:hover {
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .footer-bottom {
@@ -121,7 +123,7 @@ export default {
 }
 
 .footer-bottom-links a:hover {
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

@@ -26,53 +26,53 @@ export default {
     const themeColors = ref({
       light: {
         primary: '#ffffff',
-        secondary: '#f8fafc',
-        card: '#f1f5f9',
-        textPrimary: '#0f172a',
-        textSecondary: '#334155',
-        textMuted: '#64748b',
-        accent: '#3b82f6',
-        accentHover: '#2563eb',
-        border: '#e2e8f0'
+        secondary: '#fafafa',
+        card: '#ffffff',
+        textPrimary: '#000000',
+        textSecondary: '#444444',
+        textMuted: '#888888',
+        accent: '#000000',
+        accentHover: '#333333',
+        border: '#eaeaea'
       },
       dark: {
-        primary: '#0f172a',
-        secondary: '#1e293b',
-        card: '#334155',
-        textPrimary: '#f8fafc',
-        textSecondary: '#cbd5e1',
-        textMuted: '#64748b',
-        accent: '#3b82f6',
-        accentHover: '#2563eb',
-        border: '#475569'
+        primary: '#000000',
+        secondary: '#111111',
+        card: '#000000',
+        textPrimary: '#ffffff',
+        textSecondary: '#a1a1a1',
+        textMuted: '#666666',
+        accent: '#ffffff',
+        accentHover: '#cccccc',
+        border: '#333333'
       }
     })
 
     const themeConfig = ref({
       dark: {
         heroBackground: {
-          circleColor: '#3b82f6',
-          circleOpacity: 30,
-          circleSize: 120,
-          circleX: 50,
-          circleY: 50,
-          innerGlowColor: '#60a5fa',
-          innerGlowOpacity: 20,
-          outerGlowColor: '#1d4ed8',
-          outerGlowOpacity: 10
+          circleColor: '#111111',
+          circleOpacity: 0,
+          circleSize: 0,
+          circleX: 0,
+          circleY: 0,
+          innerGlowColor: '#000000',
+          innerGlowOpacity: 0,
+          outerGlowColor: '#000000',
+          outerGlowOpacity: 0
         }
       },
       light: {
         heroBackground: {
-          circleColor: '#e2e8f0',
-          circleOpacity: 40,
-          circleSize: 120,
-          circleX: 50,
-          circleY: 50,
-          innerGlowColor: '#cbd5e1',
-          innerGlowOpacity: 30,
-          outerGlowColor: '#94a3b8',
-          outerGlowOpacity: 15
+          circleColor: '#fafafa',
+          circleOpacity: 0,
+          circleSize: 0,
+          circleX: 0,
+          circleY: 0,
+          innerGlowColor: '#ffffff',
+          innerGlowOpacity: 0,
+          outerGlowColor: '#ffffff',
+          outerGlowOpacity: 0
         }
       }
     })
@@ -168,8 +168,9 @@ export default {
         document.documentElement.classList.remove('dark-theme')
       }
 
-      await loadThemeColors()
-      await loadThemeConfig()
+      // Desativado para garantir o novo tema minimalista preto/branco
+      // await loadThemeColors()
+      // await loadThemeConfig()
       applyThemeColors()
 
       onAuthStateChanged(auth, (currentUser) => {
@@ -218,25 +219,25 @@ html {
 }
 
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #334155;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --border: #475569;
-  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --hero-circle-color: #3b82f6;
-  --hero-circle-opacity: 0.3;
-  --hero-circle-size: 120%;
-  --hero-circle-x: 50%;
-  --hero-circle-y: 50%;
-  --hero-inner-glow-color: #60a5fa;
-  --hero-inner-glow-opacity: 0.2;
-  --hero-outer-glow-color: #1d4ed8;
-  --hero-outer-glow-opacity: 0.1;
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --bg-card: #000000;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-muted: #666666;
+  --accent: #ffffff;
+  --accent-hover: #cccccc;
+  --border: #333333;
+  --gradient: none;
+  --hero-circle-color: transparent;
+  --hero-circle-opacity: 0;
+  --hero-circle-size: 0%;
+  --hero-circle-x: 0%;
+  --hero-circle-y: 0%;
+  --hero-inner-glow-color: transparent;
+  --hero-inner-glow-opacity: 0;
+  --hero-outer-glow-color: transparent;
+  --hero-outer-glow-opacity: 0;
 }
 
 body {
@@ -259,36 +260,39 @@ body {
 }
 
 .btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   text-decoration: none;
-  display: inline-block;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border: 1px solid var(--text-primary);
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
+  background: transparent;
+  color: var(--text-primary);
 }
 
 .btn-outline {
   background: transparent;
-  color: var(--accent);
-  border: 2px solid var(--accent);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
 }
 
 .btn-outline:hover {
-  background: var(--accent);
-  color: white;
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 .section {
@@ -303,10 +307,7 @@ body {
 }
 
 .gradient-text {
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
 }
 
 .card {

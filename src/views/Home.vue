@@ -14,16 +14,7 @@
 
     <!-- Hero Section -->
     <section id="home" class="hero">
-      <div 
-        class="hero-background" 
-        :style="{ 
-          backgroundImage: `url(${isDarkMode ? heroBackgroundDark : heroBackgroundLight})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }"
-      ></div>
-      <ParticleBackground />
+      <div class="hero-background"></div>
       <div class="container">
         <div class="hero-content" data-aos="fade-up">
           <h1 class="hero-title" :aria-label="displayedText">
@@ -31,10 +22,10 @@
           </h1>
           
            <p v-if="settings.title" class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
-            <span class="gradient-text">{{ settings.title }}</span>
+            <span>{{ settings.title }}</span>
             </p>
             <p v-else class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
-                <span class="gradient-text">Analista e Desenvolvedor de Sistemas!!!!!!!!!</span>
+                <span>Analista e Desenvolvedor de Sistemas!!!!!!!!!</span>
             </p>
           <div class="hero-actions" data-aos="fade-up" data-aos-delay="400">
             <a href="#projetos" class="btn btn-primary">Ver Projetos</a>
@@ -53,7 +44,7 @@
     <!-- Projetos Section -->
     <section id="projetos" class="section">
       <div class="container">
-        <h2 class="section-title" data-aos="fade-up">Meus <span class="gradient-text">Projetos</span></h2>
+        <h2 class="section-title" data-aos="fade-up">Meus <span>Projetos</span></h2>
         
         <div class="projects-filter" data-aos="fade-up" data-aos-delay="200">
           <button 
@@ -115,7 +106,27 @@
     </section>
 
     <!-- Timeline Section -->
-    <Timeline />
+    <Timeline id="experiencia" />
+
+    <!-- Certificações Section -->
+    <Certifications id="certificacoes" />
+
+    <!-- Formação Acadêmica Section -->
+    <section id="formacao" class="section">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Formação <span class="gradient-text">Acadêmica</span></h2>
+        <div class="education-grid">
+          <div class="education-card" data-aos="fade-up">
+            <div class="education-year">2020 - 2024</div>
+            <div class="education-info">
+              <h3>Análise e Desenvolvimento de Sistemas</h3>
+              <p class="university">Universidade Exemplo (FIAP / Mackenzie / etc)</p>
+              <p class="edu-desc">Foco em engenharia de software, arquitetura de sistemas e desenvolvimento ágil.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Tecnologias Section -->
     <section id="tecnologias" class="section">
@@ -203,6 +214,9 @@
         </div>
       </div>
     </section>
+
+    <!-- Recomendações Section -->
+    <Recommendations id="recomendacoes" />
 
     <!-- Contato Section -->
     <section id="contato" class="section">
@@ -293,6 +307,9 @@
         </div>
       </div>
     </section>
+
+    <!-- Professional Links Section -->
+    <ProfessionalLinks id="networking" />
     <!-- Modal de Detalhes do Projeto -->
     <div v-if="showProjectModal" class="modal-overlay" @click="closeProjectModal">
       <div class="modal project-modal" @click.stop>
@@ -353,6 +370,9 @@ import FloatingActionButton from '../components/FloatingActionButton.vue'
 import ParticleBackground from '../components/ParticleBackground.vue'
 import StatsCounter from '../components/StatsCounter.vue'
 import Timeline from '../components/Timeline.vue'
+import Certifications from '../components/Certifications.vue'
+import Recommendations from '../components/Recommendations.vue'
+import ProfessionalLinks from '../components/ProfessionalLinks.vue'
 
 export default {
   name: 'Home',
@@ -363,7 +383,10 @@ export default {
     FloatingActionButton,
     ParticleBackground,
     StatsCounter,
-    Timeline
+    Timeline,
+    Certifications,
+    Recommendations,
+    ProfessionalLinks
   },
   setup() {
     // Inject theme context
@@ -677,30 +700,13 @@ export default {
 }
 
 .hero-background {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  z-index: 0 !important;
-  transition: all 0.5s ease;
-  animation: heroGlow 6s ease-in-out infinite alternate;
-}
-
-/* Enhanced glow animation for futuristic effect */
-@keyframes heroGlow {
-  0% {
-    filter: brightness(1) blur(0px);
-    transform: scale(1);
-  }
-  50% {
-    filter: brightness(1.05) blur(0.3px);
-    transform: scale(1.002);
-  }
-  100% {
-    filter: brightness(1.1) blur(0.5px);
-    transform: scale(1.005);
-  }
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background: var(--bg-primary);
 }
 
 .hero-content {
@@ -710,12 +716,12 @@ export default {
 }
 
 .hero-title {
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
+  font-size: 4.5rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.05em;
+  color: var(--text-primary);
 }
 
 .typed {
@@ -779,79 +785,77 @@ export default {
 .projects-filter {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 60px;
+  gap: 12px;
+  margin-bottom: 48px;
+  padding: 0 20px;
 }
 
 .filter-btn {
   background: transparent;
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   color: var(--text-secondary);
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 8px 20px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
-.filter-btn:hover,
+.filter-btn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
 .filter-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
-  transform: translateY(-2px);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
 }
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
+  margin-top: 32px;
 }
 
 .project-card {
-  max-width: 350px;
-  margin: 0 auto;
-  border-radius: 12px;
-  background: var(--bg-card);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background: var(--bg-primary);
   border: 1px solid var(--border);
-  transition: all 0.3s ease;
+  border-radius: 12px;
   overflow: hidden;
-  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .project-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: var(--text-primary);
+  transform: translateY(-4px);
 }
 
 .project-image {
   position: relative;
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16/9;
   overflow: hidden;
+  background: var(--bg-secondary);
 }
 
 .project-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.project-card:hover .project-image img {
-  transform: scale(1.05);
 }
 
 .project-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -864,61 +868,47 @@ export default {
 }
 
 .project-quick-view {
-  background: var(--accent);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.project-quick-view:hover {
-  background: var(--accent-hover);
-  transform: scale(1.05);
 }
 
 .project-badge {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: var(--accent);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 2;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  z-index: 10;
 }
 
 .project-content {
   padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .project-title {
-  color: var(--text-primary);
   font-size: 1.25rem;
-  line-height: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: var(--text-primary);
 }
 
 .project-desc {
-  margin-top: 8px;
   color: var(--text-secondary);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
 }
 
 .project-tech {
@@ -930,10 +920,11 @@ export default {
 }
 
 .tech-tag {
-  background: var(--accent);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 16px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -946,25 +937,23 @@ export default {
 
 .project-action {
   display: inline-flex;
-  margin-top: 8px;
-  color: white;
+  margin-top: 12px;
+  color: var(--text-primary);
   font-size: 0.875rem;
-  line-height: 1.25rem;
   font-weight: 500;
   align-items: center;
-  gap: 8px;
-  background: var(--accent);
-  padding: 10px 16px;
-  border-radius: 8px;
+  gap: 4px;
+  background: transparent;
+  padding: 0;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
+  transition: all 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .project-action:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
+  opacity: 0.7;
 }
 
 .project-action span {
@@ -1062,13 +1051,12 @@ export default {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: var(--accent);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 0.875rem;
   font-weight: 600;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .project-modal-info {
@@ -1110,12 +1098,18 @@ export default {
 }
 
 .tech-tags .tech-tag {
-  background: var(--accent);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.875rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
   font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tech-tags .tech-tag:hover {
+  border-color: var(--text-primary);
 }
 
 .project-modal-links {
@@ -1173,8 +1167,8 @@ export default {
 
 .tech-card-carousel:hover {
   transform: translateY(-5px);
-  border-color: var(--accent);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
+  border-color: var(--text-primary);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .tech-card-carousel .tech-icon {
@@ -1292,7 +1286,7 @@ export default {
 
 .skill-progress {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #2563eb);
+  background: var(--text-primary);
   border-radius: 4px;
   transition: width 1s ease-in-out;
 }
@@ -1345,7 +1339,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent);
+  background: var(--text-primary);
   border-radius: 50%;
 }
 
@@ -1417,8 +1411,7 @@ export default {
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--text-primary);
 }
 
 .form-group textarea {
@@ -1443,6 +1436,53 @@ export default {
   text-align: center;
   padding: 60px 20px;
   color: var(--text-secondary);
+}
+
+/* Formação Acadêmica */
+.education-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 800px;
+}
+
+.education-card {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.education-card:hover {
+  border-color: var(--text-primary);
+}
+
+.education-year {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  min-width: 120px;
+}
+
+.education-info h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.university {
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.edu-desc {
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 @media (max-width: 768px) {

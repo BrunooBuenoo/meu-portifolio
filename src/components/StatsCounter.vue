@@ -148,8 +148,8 @@ export default {
 
 <style scoped>
 .stats-section {
-  padding: 80px 0;
-  background: var(--bg-secondary);
+  padding: 64px 0;
+  background: var(--bg-primary);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -164,13 +164,13 @@ export default {
 
 .stat-card {
   text-align: center;
-  padding: 40px 20px;
-  background: var(--bg-card);
-  border-radius: 16px;
+  padding: 32px 16px;
+  background: var(--bg-primary);
+  border-radius: 8px;
   border: 1px solid var(--border);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
 }
 
 .stat-card.stat-animated {
@@ -180,9 +180,7 @@ export default {
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  border-color: var(--accent);
+  border-color: var(--text-primary);
 }
 
 .stat-icon {
@@ -197,11 +195,11 @@ export default {
 }
 
 .stat-number {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 10px;
-  font-family: 'Courier New', monospace;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
 .stat-label {

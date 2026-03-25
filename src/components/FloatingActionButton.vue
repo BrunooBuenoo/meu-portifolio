@@ -57,34 +57,35 @@ export default {
 <style scoped>
 .floating-action-button {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: none;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--text-primary);
+  border: 1px solid var(--border);
+  color: var(--bg-primary);
   cursor: pointer;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   overflow: hidden;
 }
 
 .floating-action-button:hover {
-  transform: translateY(-3px) scale(1.1);
-  box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .fab-icon {
-  color: white;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
   z-index: 2;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .floating-action-button:hover .fab-icon {

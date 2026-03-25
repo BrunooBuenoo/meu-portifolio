@@ -1,7 +1,7 @@
 <template>
   <section  id="timeline" class="timeline-section">
     <div class="container">
-      <h2 class="section-title">Minha <span class="gradient-text">Jornada</span></h2>
+      <h2 class="section-title">Minha <span class="">Jornada</span></h2>
       
       <div class="timeline">
         <div 
@@ -134,8 +134,8 @@ export default {
   left: 50%;
   top: 0;
   bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, var(--accent), transparent);
+  width: 1px;
+  background: var(--border);
   transform: translateX(-50%);
 }
 
@@ -171,13 +171,11 @@ export default {
 }
 
 .timeline-dot {
-  width: 20px;
-  height: 20px;
-  background: var(--accent);
+  width: 12px;
+  height: 12px;
+  background: var(--text-primary);
   border-radius: 50%;
-  border: 4px solid var(--bg-primary);
-  box-shadow: 0 0 0 4px var(--accent);
-  animation: pulse 2s infinite;
+  border: 2px solid var(--bg-primary);
 }
 
 @keyframes pulse {
@@ -185,7 +183,7 @@ export default {
     box-shadow: 0 0 0 4px var(--accent);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
   }
   100% {
     box-shadow: 0 0 0 4px var(--accent);
@@ -193,11 +191,11 @@ export default {
 }
 
 .timeline-content {
-  background: var(--bg-card);
-  padding: 30px;
-  border-radius: 12px;
+  background: var(--bg-primary);
+  padding: 24px;
+  border-radius: 8px;
   border: 1px solid var(--border);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   position: relative;
 }
 
@@ -221,16 +219,14 @@ export default {
 }
 
 .timeline-content:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  border-color: var(--accent);
+  border-color: var(--text-primary);
 }
 
 .timeline-date {
-  color: var(--accent);
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
 }
 
 .timeline-title {
@@ -259,12 +255,13 @@ export default {
 }
 
 .timeline-skill {
-  background: var(--accent);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 
 @media (max-width: 768px) {

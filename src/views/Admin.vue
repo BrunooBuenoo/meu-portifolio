@@ -856,7 +856,7 @@ export default {
       dark: {
         primary: '#0f172a',
         secondary: '#1e293b',
-        accent: '#3b82f6',
+        accent: '#ffffff',
         card: '#334155',
         border: '#475569',
         textPrimary: '#ffffff',
@@ -867,7 +867,7 @@ export default {
       light: {
         primary: '#ffffff',
         secondary: '#f8fafc',
-        accent: '#3b82f6',
+        accent: '#000000',
         card: '#f1f5f9',
         border: '#e2e8f0',
         textPrimary: '#0f172a',
@@ -880,7 +880,7 @@ export default {
     const themeConfig = ref({
       dark: {
         heroBackground: {
-          circleColor: '#3b82f6',
+          circleColor: '#ffffff',
           circleOpacity: 30,
           circleSize: 120,
           circleX: 50,
@@ -2009,7 +2009,7 @@ export default {
 }
 
 .connection-status.info {
-  background: #3b82f6;
+  background: var(--text-primary);
   color: white;
 }
 
@@ -2027,7 +2027,7 @@ export default {
 .admin-container {
   margin-top:4rem;
   min-height: 100vh;
-  background: var(--primary-bg);
+  background: var(--bg-primary);
   color: var(--text-primary);
 }
 
@@ -2036,7 +2036,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 2rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border);
 }
 
 .admin-header h1 {
@@ -2057,8 +2057,8 @@ export default {
 
 .admin-tabs {
   display: flex;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--secondary-bg);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
   overflow-x: auto;
 }
 
@@ -2079,9 +2079,10 @@ export default {
 }
 
 .admin-tab.active {
-  color: var(--accent-color);
-  border-bottom-color: var(--accent-color);
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
   background: var(--card-bg);
+  font-weight: 700;
 }
 
 .admin-content {
@@ -2114,7 +2115,7 @@ export default {
 .theme-section h3 {
   margin-bottom: 1.5rem;
   color: var(--text-primary);
-  border-bottom: 2px solid var(--accent-color);
+  border-bottom-color: var(--accent);
   padding-bottom: 0.5rem;
 }
 
@@ -2126,7 +2127,8 @@ export default {
 
 .theme-mode h4 {
   margin-bottom: 1rem;
-  color: var(--accent-color);
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .color-grid {
@@ -2150,7 +2152,7 @@ export default {
 .color-input-group input[type="color"] {
   width: 100%;
   height: 40px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   border-radius: 6px;
   cursor: pointer;
 }
@@ -2164,9 +2166,9 @@ export default {
 
 .config-group {
   padding: 1rem;
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
 }
 
 .config-group h5 {
@@ -2192,7 +2194,7 @@ export default {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: var(--border-color);
+  background: var(--border);
   outline: none;
   cursor: pointer;
 }
@@ -2209,9 +2211,9 @@ export default {
 .hero-preview {
   margin-top: 2rem;
   padding: 1rem;
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
 }
 
 .hero-preview h5 {
@@ -2276,7 +2278,7 @@ export default {
 
 .admin-input, .admin-textarea, .admin-select {
   padding: 0.75rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--card-bg);
   color: var(--text-primary);
@@ -2285,7 +2287,7 @@ export default {
 
 .admin-input:focus, .admin-textarea:focus, .admin-select:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -2323,8 +2325,9 @@ export default {
 }
 
 .admin-btn-primary {
-  background: var(--accent-color);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border: 1px solid var(--text-primary);
 }
 
 .admin-btn-primary:hover {
@@ -2335,11 +2338,11 @@ export default {
 .admin-btn-secondary {
   background: var(--card-bg);
   color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
 }
 
 .admin-btn-secondary:hover {
-  background: var(--border-color);
+  background: var(--border);
 }
 
 .admin-btn-danger {
@@ -2386,7 +2389,7 @@ export default {
 .admin-project-card {
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -2406,19 +2409,19 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
 }
 
 .project-badge {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--accent-color);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
   padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .admin-project-content {
@@ -2445,17 +2448,17 @@ export default {
   margin-bottom: 1rem;
 }
 
-.tech-tag {
-  background: var(--accent-color);
-  color: white;
+.tech-tag, .skill-tag {
+  background: var(--text-primary);
+  color: var(--bg-primary);
   padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .tech-more {
-  background: var(--border-color);
+  background: var(--border);
   color: var(--text-secondary);
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -2479,8 +2482,8 @@ export default {
 }
 
 .admin-action-view {
-  background: var(--accent-color);
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .admin-action-view:hover {
@@ -2490,11 +2493,11 @@ export default {
 .admin-action-edit {
   background: var(--card-bg);
   color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
 }
 
 .admin-action-edit:hover {
-  background: var(--border-color);
+  background: var(--border);
 }
 
 .admin-action-delete {
@@ -2510,7 +2513,7 @@ export default {
 .technology-card {
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   padding: 1.5rem;
   text-align: center;
   transition: all 0.3s ease;
@@ -2527,7 +2530,7 @@ export default {
   margin: 0 auto 1rem;
   border-radius: 12px;
   overflow: hidden;
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
 }
 
 .technology-icon img {
@@ -2556,7 +2559,7 @@ export default {
 .skill-card {
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   padding: 1.5rem;
   transition: all 0.3s ease;
 }
@@ -2581,20 +2584,20 @@ export default {
 .skill-bar {
   flex: 1;
   height: 8px;
-  background: var(--border-color);
+  background: var(--border);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .skill-progress {
   height: 100%;
-  background: var(--accent-color);
+  background: var(--text-primary);
   transition: width 0.3s ease;
 }
 
 .skill-percentage {
-  font-weight: 500;
-  color: var(--accent-color);
+  font-weight: 600;
+  color: var(--text-primary);
   min-width: 40px;
 }
 
@@ -2613,7 +2616,7 @@ export default {
 .message-card {
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   padding: 1.5rem;
 }
 
@@ -2666,7 +2669,7 @@ export default {
 .admin-modal-content, .admin-project-modal-content {
   background: var(--card-bg);
   border-radius: 16px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -2682,7 +2685,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border);
 }
 
 .admin-modal-header h3 {
@@ -2707,7 +2710,7 @@ export default {
 }
 
 .admin-modal-close:hover {
-  background: var(--border-color);
+  background: var(--border);
   color: var(--text-primary);
 }
 
@@ -2729,7 +2732,7 @@ export default {
   margin-bottom: 1.5rem;
   border-radius: 12px;
   overflow: hidden;
-  background: var(--secondary-bg);
+  background: var(--bg-secondary);
 }
 
 .admin-project-modal-image img {
@@ -2777,8 +2780,8 @@ export default {
   height: 100px;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
 }
 
 .preview-image {
@@ -2793,7 +2796,7 @@ export default {
   padding: 2rem;
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
 }
 
 .hero-config-section h3 {
@@ -2832,7 +2835,7 @@ export default {
 .stats-admin-card {
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   padding: 1.5rem;
   display: flex;
   align-items: center;
@@ -2852,9 +2855,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent-color);
+  background: var(--text-primary);
   border-radius: 50%;
-  color: white;
+  color: var(--bg-primary);
 }
 
 .stats-content {
@@ -2887,7 +2890,7 @@ export default {
 .timeline-admin-card {
   background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   padding: 1.5rem;
   transition: all 0.3s ease;
 }
@@ -2898,8 +2901,8 @@ export default {
 }
 
 .timeline-admin-date {
-  color: var(--accent-color);
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 700;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
@@ -2929,17 +2932,9 @@ export default {
   margin-bottom: 1rem;
 }
 
-.skill-tag {
-  background: var(--accent-color);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 16px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
 
 .skill-more {
-  background: var(--border-color);
+  background: var(--border);
   color: var(--text-secondary);
   padding: 0.25rem 0.75rem;
   border-radius: 16px;

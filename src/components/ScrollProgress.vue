@@ -49,8 +49,7 @@ export default {
 
 .scroll-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #2563eb);
+  background: var(--text-primary);
   transition: width 0.1s ease;
-  box-shadow: 0 0 10px var(--accent);
 }
 </style>

@@ -101,35 +101,34 @@ export default {
 
 .cursor-dot {
   position: fixed;
-  width: 8px;
-  height: 8px;
-  background: var(--accent);
+  width: 6px;
+  height: 6px;
+  background: var(--text-primary);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: all 0.1s ease;
+  transition: transform 0.2s ease;
   z-index: 10001;
 }
 
 .cursor-outline {
   position: fixed;
-  width: 30px;
-  height: 30px;
-  border: 2px solid var(--accent);
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--text-primary);
+  opacity: 0.3;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: all 0s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
   z-index: 10000;
-  opacity: 0.5;
 }
 
 .cursor-dot.cursor-hover {
-  transform: translate(-50%, -50%) scale(2);
-  background: var(--accent-hover);
+  transform: translate(-50%, -50%) scale(0.5);
 }
 
 .cursor-outline.cursor-hover {
   transform: translate(-50%, -50%) scale(1.5);
-  border-color: var(--accent-hover);
-  opacity: 0.8;
+  background: var(--text-primary);
+  opacity: 0.15;
 }
 </style>

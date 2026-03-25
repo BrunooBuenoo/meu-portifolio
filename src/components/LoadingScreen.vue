@@ -13,9 +13,7 @@
           </div>
         </div>
       </div>
-      <div class="loading-particles">
-        <div v-for="i in 20" :key="i" class="particle" :style="getParticleStyle(i)"></div>
-      </div>
+      <div class="loading-particles"></div>
     </div>
   </transition>
 </template>
@@ -95,7 +93,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+  background: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,30 +112,23 @@ export default {
 }
 
 .logo-text {
-  font-size: 4rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 20px;
-  animation: logoGlow 2s ease-in-out infinite alternate;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 24px;
+  letter-spacing: -0.05em;
 }
 
-@keyframes logoGlow {
-  from {
-    text-shadow: 0 0 5px var(--accent);
-  }
-  to {
-    text-shadow: 0 0 8px var(--accent), 0 0 12px var(--accent);
-  }
-}
+/* Removido logoGlow */
 
 .loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 3px solid rgba(59, 130, 246, 0.3);
-  border-top: 3px solid var(--accent);
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid #ffffff;
   border-radius: 50%;
   margin: 0 auto;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -159,17 +150,16 @@ export default {
 .loading-progress {
   width: 100%;
   height: 4px;
-  background: rgba(59, 130, 246, 0.2);
+  background: var(--bg-secondary);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #2563eb);
+  background: #ffffff;
   border-radius: 2px;
   transition: width 0.3s ease;
-  box-shadow: 0 0 10px var(--accent);
 }
 
 .loading-particles {

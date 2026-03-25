@@ -111,7 +111,7 @@ export default {
           if (distance < 100) {
             ctx.save()
             ctx.globalAlpha = 0.1
-            ctx.strokeStyle = isDarkMode.value ? '#3b82f6' : '#1e40af'
+            ctx.strokeStyle = isDarkMode.value ? `rgba(255, 255, 255, ${1 - distance/100})` : `rgba(0, 0, 0, ${0.1 - distance/1000})`
             ctx.lineWidth = 1
             ctx.beginPath()
             ctx.moveTo(a.x, a.y)

@@ -1,18 +1,15 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import './styles.css'
 
 // ===== Font Awesome =====
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Ícones que você quer usar
-import { faUser, faHome, faCoffee } from '@fortawesome/free-solid-svg-icons'
-import { faGithub, faInstagram } from '@fortawesome/free-brands-svg-icons'
-import { faEnvelope,
-         faPhone,
-         faLocationDot
- } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faHome, faCoffee, faEnvelope, faPhone, faLocationDot, faSun, faMoon, faCertificate, faBriefcase, faFilePdf } from '@fortawesome/free-solid-svg-icons'
+import { faGithub, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons'
 
 // Adiciona os ícones à biblioteca
 library.add(
@@ -21,9 +18,15 @@ library.add(
      faCoffee, 
      faGithub, 
      faInstagram, 
+     faLinkedin,
      faEnvelope,
      faPhone,
-     faLocationDot
+     faLocationDot,
+     faSun,
+     faMoon,
+     faCertificate,
+     faBriefcase,
+     faFilePdf
     )
 
 // Cria o app
