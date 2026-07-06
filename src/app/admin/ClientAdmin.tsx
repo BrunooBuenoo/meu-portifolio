@@ -833,7 +833,7 @@ export default function ClientAdmin({
           className="fixed right-6 sm:right-10 top-24 z-50 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-zinc-700 bg-zinc-950/95 text-zinc-100 hover:bg-zinc-800 backdrop-blur-md flex items-center gap-2"
         >
           <ArrowLeft size={14} />
-          <span>Voltar para opcoes</span>
+          <span>Voltar para opcões</span>
         </button>
       )}
 

@@ -82,9 +82,9 @@ interface HeroSettings {
 
 interface StatItem {
   icon?: string;
-  number?: number;
+  number: number;
   suffix?: string;
-  label?: string;
+  label: string;
 }
 
 interface StatsSettings {
@@ -129,23 +129,43 @@ interface Skill {
 }
 
 interface Service {
-  [key: string]: unknown;
+  id?: string;
+  title: string;
+  description: string;
+  iconName?: string;
 }
 
 interface Testimonial {
-  [key: string]: unknown;
+  quote: string;
+  name: string;
+  role: string;
+  company: string;
 }
 
 interface CaseReal {
-  [key: string]: unknown;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
+  company: string;
+  highlights: string[];
+  buttonText: string;
 }
 
 interface EducationItem {
-  [key: string]: unknown;
+  id?: string;
+  title: string;
+  institution: string;
+  date: string;
+  description: string;
 }
 
 interface CertificationItem {
-  [key: string]: unknown;
+  id?: string;
+  title: string;
+  issuer: string;
+  date: string;
+  credentialId: string;
 }
 
 interface HeroBackgroundConfig {
