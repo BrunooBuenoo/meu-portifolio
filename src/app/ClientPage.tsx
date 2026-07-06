@@ -365,6 +365,24 @@ export default function ClientPage({
     };
   };
 
+  const sectionReveal = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.14,
+      },
+    },
+  };
+
+  const sectionItem = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" as const },
+    },
+  };
+
   return (
     <div className="relative min-h-screen bg-primary transition-colors flex flex-col font-sans">
       <Cabecalho name={siteSettings?.name || ""} />
@@ -387,10 +405,19 @@ export default function ClientPage({
             />
           </div>
 
-          <div className="max-w-[1440px] mx-auto w-full z-10 relative">
+          <motion.div
+            className="max-w-[1440px] mx-auto w-full z-10 relative"
+            variants={sectionReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.25 }}
+          >
             {/* Bloco 1: Textos e Botões (Esquerda) */}
             <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-5xl">
-              <h1 className="font-sans font-bold text-text-primary text-5xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight">
+              <motion.h1
+                variants={sectionItem}
+                className="font-sans font-bold text-text-primary text-5xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight"
+              >
                 <span
                   contentEditable={isEditable}
                   suppressContentEditableWarning
@@ -428,9 +455,12 @@ export default function ClientPage({
                     pauseEnd={heroSettings?.pauseEnd || 2000}
                   />
                 )}
-              </h1>
+              </motion.h1>
 
-              <p className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px]">
+              <motion.p
+                variants={sectionItem}
+                className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px]"
+              >
                 <span
                   contentEditable={isEditable}
                   suppressContentEditableWarning
@@ -443,24 +473,11 @@ export default function ClientPage({
                   }}
                   className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""}
                 >
-                  {(siteSettings?.about || "").split(".")[0]}
+                  {(siteSettings?.about)}
                 </span>
-                .{" "}
-                <span
-                  contentEditable={isEditable}
-                  suppressContentEditableWarning
-                  onBlur={(e) => {
-                    if (onUpdateSite) {
-                      onUpdateSite({ ...siteSettings, thought: e.currentTarget.textContent || "" });
-                    }
-                  }}
-                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""}
-                >
-                  {siteSettings?.thought || ""}
-                </span>
-              </p>
+              </motion.p>
 
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
+              <motion.div variants={sectionItem} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
                 <a
                   href="#projetos"
                   className="bg-accent text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full hover:opacity-90 transition-all cursor-pointer shadow-[0_0_15px_rgba(148,255,71,0.2)]"
@@ -510,9 +527,9 @@ export default function ClientPage({
                     </span>
                   </a>
                 )}
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* 2. STATS SECTION */}
@@ -521,10 +538,16 @@ export default function ClientPage({
         {/* 3. SOBRE MIM SECTION */}
         {sectionsSettings?.sobreMim !== false && (
           <section className="bg-primary py-24 px-6 sm:px-10 transition-colors" id="sobre-mim">
-            <div className="max-w-[1440px] mx-auto">
+            <motion.div
+              className="max-w-[1440px] mx-auto"
+              variants={sectionReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
               <div className="flex flex-col lg:flex-row items-stretch gap-12 lg:gap-16">
                 {/* Left Bio Column */}
-                <div className="flex-1 flex flex-col justify-between gap-6">
+                <motion.div variants={sectionItem} className="flex-1 flex flex-col justify-between gap-6">
                   <div>
                     <span
                       contentEditable={isEditable}
@@ -592,10 +615,10 @@ export default function ClientPage({
                       </span>
                     </p>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Right Skills Progress Column */}
-                <div className="flex-1">
+                <motion.div variants={sectionItem} className="flex-1">
                   <div className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-8 sm:p-10 rounded-[32px] h-full flex flex-col justify-center">
                     <h3 className="font-sans font-bold text-text-primary text-2xl mb-8">
                       <span
@@ -629,9 +652,9 @@ export default function ClientPage({
                       ))}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </section>
         )}
 
@@ -648,9 +671,15 @@ export default function ClientPage({
         {/* 5. PROJETOS EM DESTAQUE */}
         {sectionsSettings?.projetos !== false && (
           <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="projetos">
-            <div className="max-w-[1440px] mx-auto">
+            <motion.div
+              className="max-w-[1440px] mx-auto"
+              variants={sectionReveal}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.15 }}
+            >
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
-                <div>
+                <motion.div variants={sectionItem}>
                   <span
                     contentEditable={isEditable}
                     suppressContentEditableWarning
@@ -671,10 +700,10 @@ export default function ClientPage({
                       {getEditableText("projectsTitle", "Projetos Recentes")}
                     </span>
                   </h2>
-                </div>
+                </motion.div>
 
                 {/* Pill filter selector */}
-                <div className="bg-secondary/50 border border-border/20 p-1.5 rounded-full flex gap-1 self-start sm:self-auto">
+                <motion.div variants={sectionItem} className="bg-secondary/50 border border-border/20 p-1.5 rounded-full flex gap-1 self-start sm:self-auto">
                   <button
                     onClick={() => setProjFilter("destaques")}
                     className={`px-5 py-2 rounded-full font-sans text-sm font-semibold transition-all cursor-pointer ${
@@ -709,7 +738,7 @@ export default function ClientPage({
                       {getEditableText("projectsFilterAll", "Todos")}
                     </span>
                   </button>
-                </div>
+                </motion.div>
               </div>
 
               {/* Projects Grid */}
@@ -775,7 +804,7 @@ export default function ClientPage({
                   ))}
                 </AnimatePresence>
               </motion.div>
-            </div>
+            </motion.div>
           </section>
         )}
 
@@ -812,10 +841,16 @@ export default function ClientPage({
         {/* 11. CONTATO (FORM + CONTACT DETAILS) */}
         {sectionsSettings?.contato !== false && (
           <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="contato">
-          <div className="max-w-[1440px] mx-auto">
+          <motion.div
+            className="max-w-[1440px] mx-auto"
+            variants={sectionReveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
             <div className="flex flex-col lg:flex-row items-stretch gap-12 lg:gap-16">
               {/* Left Contact Info Column */}
-              <div className="flex-1 flex flex-col justify-between gap-6">
+              <motion.div variants={sectionItem} className="flex-1 flex flex-col justify-between gap-6">
                 <div>
                   <span
                     contentEditable={isEditable}
@@ -924,10 +959,10 @@ export default function ClientPage({
                   githubUrl={siteSettings?.github || ""}
                   cvUrl="#"
                 />
-              </div>
+              </motion.div>
 
               {/* Right Contact Form Column */}
-              <div className="flex-1">
+              <motion.div variants={sectionItem} className="flex-1">
                 <div className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-8 sm:p-10 rounded-[32px] h-full">
                   <h3 className="font-sans font-bold text-text-primary text-2xl mb-8">
                     <span
@@ -1057,9 +1092,9 @@ export default function ClientPage({
                     </AnimatePresence>
                   </form>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </section>
       )}
 
