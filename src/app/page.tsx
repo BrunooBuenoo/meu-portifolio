@@ -6,7 +6,6 @@ import {
   getProjects,
   getTechnologies,
   getSkills,
-  getThemeColors,
   getThemeConfig,
   getServices,
   getTestimonials,
@@ -29,7 +28,6 @@ export default async function Home() {
     projects,
     technologies,
     skills,
-    themeColors,
     themeConfig,
     services,
     testimonials,
@@ -45,7 +43,6 @@ export default async function Home() {
     getProjects(),
     getTechnologies(),
     getSkills(),
-    getThemeColors(),
     getThemeConfig(),
     getServices(),
     getTestimonials(),
@@ -64,7 +61,6 @@ export default async function Home() {
       projects={projects}
       technologies={technologies}
       skills={skills}
-      themeColors={themeColors}
       themeConfig={themeConfig}
       services={services}
       testimonials={testimonials}
