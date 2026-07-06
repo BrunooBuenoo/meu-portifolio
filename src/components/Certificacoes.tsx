@@ -22,19 +22,63 @@ interface CertificationItem {
 interface CertificacoesProps {
   education?: EducationItem[];
   certifications?: CertificationItem[];
+  isEditable?: boolean;
+  getEditableText?: (key: string, fallback: string) => string;
+  onUpdateText?: (key: string, value: string) => void;
 }
 
-export default function Certificacoes({ education = [], certifications = [] }: CertificacoesProps) {
+export default function Certificacoes({
+  education = [],
+  certifications = [],
+  isEditable = false,
+  getEditableText,
+  onUpdateText
+}: CertificacoesProps) {
+  const readText = (key: string, fallback: string) => {
+    return getEditableText ? getEditableText(key, fallback) : fallback;
+  };
+
+  const saveText = (key: string, value: string) => {
+    if (!onUpdateText) return;
+    onUpdateText(key, value);
+  };
+
   return (
     <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="certificacoes">
       <div className="max-w-[1440px] mx-auto">
         <div className="text-center mb-16">
-          <span className="font-sans text-accent text-sm font-semibold uppercase tracking-widest">Credenciais</span>
+          <span
+            contentEditable={isEditable}
+            suppressContentEditableWarning
+            onBlur={(e) => saveText("certsLabel", e.currentTarget.textContent || "")}
+            className={`font-sans text-accent text-sm font-semibold uppercase tracking-widest ${
+              isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+            }`}
+          >
+            {readText("certsLabel", "Credenciais")}
+          </span>
           <h2 className="font-sans font-medium text-text-primary text-[36px] sm:text-[42px] leading-tight tracking-tight mt-2 mb-4">
-            Certificações & Educação
+            <span
+              contentEditable={isEditable}
+              suppressContentEditableWarning
+              onBlur={(e) => saveText("certsTitle", e.currentTarget.textContent || "")}
+              className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+            >
+              {readText("certsTitle", "Certificações & Educação")}
+            </span>
           </h2>
-          <p className="font-sans text-text-secondary text-base max-w-[500px] mx-auto">
-            Minhas qualificações acadêmicas e especializações técnicas reconhecidas pelo mercado.
+          <p
+            contentEditable={isEditable}
+            suppressContentEditableWarning
+            onBlur={(e) => saveText("certsDescription", e.currentTarget.textContent || "")}
+            className={`font-sans text-text-secondary text-base max-w-[500px] mx-auto ${
+              isEditable ? "outline-dashed outline-1 outline-accent/40 p-2 rounded focus:outline-accent" : ""
+            }`}
+          >
+            {readText(
+              "certsDescription",
+              "Minhas qualificações acadêmicas e especializações técnicas reconhecidas pelo mercado."
+            )}
           </p>
         </div>
 
@@ -46,7 +90,14 @@ export default function Certificacoes({ education = [], certifications = [] }: C
                 <GraduationCap size={24} />
               </div>
               <h3 className="font-sans font-bold text-text-primary text-xl sm:text-2xl">
-                Formação Acadêmica
+                <span
+                  contentEditable={isEditable}
+                  suppressContentEditableWarning
+                  onBlur={(e) => saveText("educationColumnTitle", e.currentTarget.textContent || "")}
+                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                >
+                  {readText("educationColumnTitle", "Formação Acadêmica")}
+                </span>
               </h3>
             </div>
             
@@ -80,7 +131,14 @@ export default function Certificacoes({ education = [], certifications = [] }: C
                 <Award size={24} />
               </div>
               <h3 className="font-sans font-bold text-text-primary text-xl sm:text-2xl">
-                Certificados Profissionais
+                <span
+                  contentEditable={isEditable}
+                  suppressContentEditableWarning
+                  onBlur={(e) => saveText("certificationsColumnTitle", e.currentTarget.textContent || "")}
+                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                >
+                  {readText("certificationsColumnTitle", "Certificados Profissionais")}
+                </span>
               </h3>
             </div>
 
@@ -99,7 +157,9 @@ export default function Certificacoes({ education = [], certifications = [] }: C
                     <span className="font-sans text-text-muted text-sm shrink-0 font-medium">{cert.date}</span>
                   </div>
                   <p className="font-sans text-text-secondary text-sm mb-1">{cert.issuer}</p>
-                  <span className="font-sans text-text-muted text-xs font-mono">ID Credencial: {cert.credentialId}</span>
+                  <span className="font-sans text-text-muted text-xs font-mono">
+                    {readText("credentialIdLabel", "ID Credencial")}: {cert.credentialId}
+                  </span>
                 </motion.div>
               ))}
             </div>

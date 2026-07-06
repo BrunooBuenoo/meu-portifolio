@@ -17,7 +17,7 @@ import {
 } from "@/lib/dataService";
 import ClientPage from "./ClientPage";
 
-export const revalidate = 60; // Revalida os dados do Firestore a cada minuto
+export const dynamic = "force-dynamic"; // Garante que a Landing Page mostre os dados do Firestore instantaneamente
 
 export default async function Home() {
   // Busca todas as configurações e dados dinâmicos de forma paralela no servidor

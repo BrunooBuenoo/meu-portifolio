@@ -15,6 +15,8 @@ interface OQueDesenvolvoProps {
 }
 
 export default function OQueDesenvolvo({ services = [] }: OQueDesenvolvoProps) {
+  if (!services || services.length === 0) return null;
+
   const getIcon = (name?: string) => {
     switch (name) {
       case "Laptop":

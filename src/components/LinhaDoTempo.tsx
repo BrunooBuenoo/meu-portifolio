@@ -12,21 +12,64 @@ interface Experience {
 
 interface LinhaDoTempoProps {
   timeline?: Experience[];
+  isEditable?: boolean;
+  getEditableText?: (key: string, fallback: string) => string;
+  onUpdateText?: (key: string, value: string) => void;
 }
 
-export default function LinhaDoTempo({ timeline = [] }: LinhaDoTempoProps) {
+export default function LinhaDoTempo({
+  timeline = [],
+  isEditable = false,
+  getEditableText,
+  onUpdateText
+}: LinhaDoTempoProps) {
   if (timeline.length === 0) return null;
+
+  const readText = (key: string, fallback: string) => {
+    return getEditableText ? getEditableText(key, fallback) : fallback;
+  };
+
+  const saveText = (key: string, value: string) => {
+    if (!onUpdateText) return;
+    onUpdateText(key, value);
+  };
 
   return (
     <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="jornada">
       <div className="max-w-[1000px] mx-auto">
         <div className="text-center mb-20">
-          <span className="font-sans text-accent text-sm font-semibold uppercase tracking-widest">Trajetória</span>
+          <span
+            contentEditable={isEditable}
+            suppressContentEditableWarning
+            onBlur={(e) => saveText("timelineLabel", e.currentTarget.textContent || "")}
+            className={`font-sans text-accent text-sm font-semibold uppercase tracking-widest ${
+              isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+            }`}
+          >
+            {readText("timelineLabel", "Trajetória")}
+          </span>
           <h2 className="font-sans font-medium text-text-primary text-[36px] sm:text-[42px] leading-tight tracking-tight mt-2 mb-4">
-            Minha Jornada
+            <span
+              contentEditable={isEditable}
+              suppressContentEditableWarning
+              onBlur={(e) => saveText("timelineTitle", e.currentTarget.textContent || "")}
+              className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+            >
+              {readText("timelineTitle", "Minha Jornada")}
+            </span>
           </h2>
-          <p className="font-sans text-text-secondary text-base max-w-[500px] mx-auto">
-            Experiências profissionais e formação ao longo da minha carreira como desenvolvedor.
+          <p
+            contentEditable={isEditable}
+            suppressContentEditableWarning
+            onBlur={(e) => saveText("timelineDescription", e.currentTarget.textContent || "")}
+            className={`font-sans text-text-secondary text-base max-w-[500px] mx-auto ${
+              isEditable ? "outline-dashed outline-1 outline-accent/40 p-2 rounded focus:outline-accent" : ""
+            }`}
+          >
+            {readText(
+              "timelineDescription",
+              "Experiências profissionais e formação ao longo da minha carreira como desenvolvedor."
+            )}
           </p>
         </div>
 

@@ -10,9 +10,17 @@ interface Technology {
 
 interface CarrosselTecnologiasProps {
   technologies?: Technology[];
+  isEditable?: boolean;
+  getEditableText?: (key: string, fallback: string) => string;
+  onUpdateText?: (key: string, value: string) => void;
 }
 
-export default function CarrosselTecnologias({ technologies = [] }: CarrosselTecnologiasProps) {
+export default function CarrosselTecnologias({
+  technologies = [],
+  isEditable = false,
+  getEditableText,
+  onUpdateText
+}: CarrosselTecnologiasProps) {
   const [activeCategory, setActiveCategory] = useState("Todos");
 
   // Extrair categorias exclusivas
@@ -66,14 +74,40 @@ export default function CarrosselTecnologias({ technologies = [] }: CarrosselTec
 
   if (technologies.length === 0) return null;
 
+  const readText = (key: string, fallback: string) => {
+    return getEditableText ? getEditableText(key, fallback) : fallback;
+  };
+
+  const saveText = (key: string, value: string) => {
+    if (!onUpdateText) return;
+    onUpdateText(key, value);
+  };
+
   return (
     <section className="bg-primary py-20 overflow-hidden transition-colors" id="tecnologias">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-10 text-center mb-10">
         <h2 className="font-sans font-medium text-text-primary text-[36px] sm:text-[42px] leading-tight tracking-tight mb-4">
-          Tecnologias & Skills
+          <span
+            contentEditable={isEditable}
+            suppressContentEditableWarning
+            onBlur={(e) => saveText("techSectionTitle", e.currentTarget.textContent || "")}
+            className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+          >
+            {readText("techSectionTitle", "Tecnologias & Skills")}
+          </span>
         </h2>
-        <p className="font-sans text-text-secondary text-base max-w-[500px] mx-auto mb-8">
-          Tecnologias que utilizo no meu dia a dia para criar e automatizar soluções digitais de alto impacto.
+        <p
+          contentEditable={isEditable}
+          suppressContentEditableWarning
+          onBlur={(e) => saveText("techSectionDescription", e.currentTarget.textContent || "")}
+          className={`font-sans text-text-secondary text-base max-w-[500px] mx-auto mb-8 ${
+            isEditable ? "outline-dashed outline-1 outline-accent/40 p-2 rounded focus:outline-accent" : ""
+          }`}
+        >
+          {readText(
+            "techSectionDescription",
+            "Tecnologias que utilizo no meu dia a dia para criar e automatizar soluções digitais de alto impacto."
+          )}
         </p>
 
         {/* Category Filter Pills */}
@@ -88,7 +122,18 @@ export default function CarrosselTecnologias({ technologies = [] }: CarrosselTec
                   : "bg-transparent border-border/40 text-text-secondary hover:text-text-primary hover:border-border"
               }`}
             >
-              {cat}
+              {cat === "Todos" ? (
+                <span
+                  contentEditable={isEditable}
+                  suppressContentEditableWarning
+                  onBlur={(e) => saveText("techFilterAllLabel", e.currentTarget.textContent || "")}
+                  className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                >
+                  {readText("techFilterAllLabel", "Todos")}
+                </span>
+              ) : (
+                cat
+              )}
             </button>
           ))}
         </div>

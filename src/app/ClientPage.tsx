@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -55,6 +56,112 @@ import Certificacoes from "@/components/Certificacoes";
 import LinksProfissionais from "@/components/LinksProfissionais";
 import BotaoFlutuante from "@/components/BotaoFlutuante";
 
+interface SiteSettings {
+  name?: string;
+  title?: string;
+  about?: string;
+  thought?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedin?: string;
+  github?: string;
+  whatsapp?: string;
+  editableTexts?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+interface HeroSettings {
+  messages?: string[];
+  typingSpeed?: number;
+  deletingSpeed?: number;
+  pauseStart?: number;
+  pauseEnd?: number;
+  [key: string]: unknown;
+}
+
+interface StatItem {
+  icon?: string;
+  number?: number;
+  suffix?: string;
+  label?: string;
+}
+
+interface StatsSettings {
+  stats?: StatItem[];
+}
+
+interface TimelineItem {
+  date: string;
+  title: string;
+  company: string;
+  description: string;
+  skills: string[];
+}
+
+interface TimelineSettings {
+  timeline?: TimelineItem[];
+}
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  technologies: string[];
+  featured?: boolean;
+  liveUrl?: string;
+  githubUrl?: string;
+  [key: string]: unknown;
+}
+
+interface Technology {
+  name: string;
+  icon?: string;
+  category?: string;
+  [key: string]: unknown;
+}
+
+interface Skill {
+  name: string;
+  percentage: number;
+  [key: string]: unknown;
+}
+
+interface Service {
+  [key: string]: unknown;
+}
+
+interface Testimonial {
+  [key: string]: unknown;
+}
+
+interface CaseReal {
+  [key: string]: unknown;
+}
+
+interface EducationItem {
+  [key: string]: unknown;
+}
+
+interface CertificationItem {
+  [key: string]: unknown;
+}
+
+interface HeroBackgroundConfig {
+  circleColor?: string;
+  circleOpacity?: number;
+  circleSize?: number;
+  circleX?: number;
+  circleY?: number;
+}
+
+interface ThemeConfigEntry {
+  heroBackground?: HeroBackgroundConfig;
+}
+
+type ThemeConfig = Record<string, ThemeConfigEntry | undefined>;
+
 // ==========================================
 // TYPEWRITER COMPONENT
 // ==========================================
@@ -78,8 +185,8 @@ function Typewriter({
   useEffect(() => {
     if (!messages || messages.length === 0) return;
 
-    let timer: NodeJS.Timeout;
-    const fullText = messages[currentIdx];
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const fullText = messages[currentIdx] || "";
 
     if (!isDeleting) {
       if (currentText === fullText) {
@@ -91,8 +198,10 @@ function Typewriter({
       }
     } else {
       if (currentText === "") {
-        setIsDeleting(false);
-        setCurrentIdx((prev) => (prev + 1) % messages.length);
+        timer = setTimeout(() => {
+          setIsDeleting(false);
+          setCurrentIdx((prev) => (prev + 1) % messages.length);
+        }, deletingSpeed);
       } else {
         timer = setTimeout(() => {
           setCurrentText(fullText.substring(0, currentText.length - 1));
@@ -100,7 +209,9 @@ function Typewriter({
       }
     }
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [currentText, isDeleting, currentIdx, messages, typingSpeed, deletingSpeed, pauseStart, pauseEnd]);
 
   return (
@@ -114,21 +225,23 @@ function Typewriter({
 // INTERACTIVE PORTFOLIO PAGE
 // ==========================================
 interface ClientPageProps {
-  siteSettings: any;
-  heroSettings: any;
-  statsSettings: any;
-  timelineSettings: any;
-  projects: any[];
-  technologies: any[];
-  skills: any[];
-  themeColors: any;
-  themeConfig: any;
-  services: any[];
-  testimonials: any[];
-  caseReal: any;
-  education: any[];
-  certifications: any[];
-  sectionsSettings?: any;
+  siteSettings: SiteSettings;
+  heroSettings: HeroSettings;
+  statsSettings: StatsSettings;
+  timelineSettings: TimelineSettings;
+  projects: Project[];
+  technologies: Technology[];
+  skills: Skill[];
+  themeConfig: ThemeConfig;
+  services: Service[];
+  testimonials: Testimonial[];
+  caseReal: CaseReal;
+  education: EducationItem[];
+  certifications: CertificationItem[];
+  sectionsSettings?: Record<string, boolean | undefined>;
+  isEditable?: boolean;
+  onUpdateSite?: (updatedSite: SiteSettings) => void;
+  onUpdateHero?: (updatedHero: HeroSettings) => void;
 }
 
 export default function ClientPage({
@@ -139,20 +252,39 @@ export default function ClientPage({
   projects,
   technologies,
   skills,
-  themeColors,
   themeConfig,
   services = [],
   testimonials = [],
   caseReal,
   education = [],
   certifications = [],
-  sectionsSettings = {}
+  sectionsSettings = {},
+  isEditable = false,
+  onUpdateSite,
+  onUpdateHero
 }: ClientPageProps) {
   const { theme } = useTheme();
 
+  const editableTexts = siteSettings?.editableTexts || {};
+
+  const getEditableText = (key: string, fallback: string) => {
+    return editableTexts[key] || fallback;
+  };
+
+  const updateEditableText = (key: string, value: string) => {
+    if (!onUpdateSite) return;
+    onUpdateSite({
+      ...siteSettings,
+      editableTexts: {
+        ...editableTexts,
+        [key]: value
+      }
+    });
+  };
+
   // Projects states
   const [projFilter, setProjFilter] = useState<"todos" | "destaques">("destaques");
-  const [selectedProject, setSelectedProject] = useState<any | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Contact form states
   const [formState, setFormState] = useState({ name: "", email: "", message: "" });
@@ -173,7 +305,7 @@ export default function ClientPage({
       await sendContactMessage(formState.name, formState.email, formState.message);
       setSendSuccess(true);
       setFormState({ name: "", email: "", message: "" });
-    } catch (err) {
+    } catch {
       setSendSuccess(false);
     } finally {
       setIsSending(false);
@@ -190,7 +322,9 @@ export default function ClientPage({
       return defaultGlow;
     }
 
-    const bg = themeConfig[theme].heroBackground;
+    const bg = themeConfig[theme]?.heroBackground;
+    if (!bg) return defaultGlow;
+
     const color = bg.circleColor;
     const size = bg.circleSize || 80;
     const opacity = (bg.circleOpacity || 15) / 100;
@@ -199,7 +333,7 @@ export default function ClientPage({
 
     // Convert hex or plain rgb/rgba to format with custom opacity
     let colorString = color;
-    if (color.startsWith("#")) {
+    if (color && color.startsWith("#")) {
       const r = parseInt(color.slice(1, 3), 16);
       const g = parseInt(color.slice(3, 5), 16);
       const b = parseInt(color.slice(5, 7), 16);
@@ -237,19 +371,73 @@ export default function ClientPage({
             {/* Bloco 1: Textos e Botões (Esquerda) */}
             <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-5xl">
               <h1 className="font-sans font-bold text-text-primary text-5xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight">
-                Desenvolvendo Soluções
+                <span
+                  contentEditable={isEditable}
+                  suppressContentEditableWarning
+                  onBlur={(e) => updateEditableText("heroTitle", e.currentTarget.textContent || "")}
+                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                >
+                  {getEditableText("heroTitle", "Desenvolvendo Soluções")}
+                </span>
                 <br />
-                <Typewriter
-                  messages={heroSettings?.messages || []}
-                  typingSpeed={heroSettings?.typingSpeed || 100}
-                  deletingSpeed={heroSettings?.deletingSpeed || 50}
-                  pauseStart={heroSettings?.pauseStart || 500}
-                  pauseEnd={heroSettings?.pauseEnd || 2000}
-                />
+                {isEditable ? (
+                  <span
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) => {
+                      if (!onUpdateHero) return;
+                      const text = (e.currentTarget.textContent || "").trim();
+                      const currentMessages = Array.isArray(heroSettings?.messages) ? [...heroSettings.messages] : [];
+                      if (currentMessages.length === 0) {
+                        currentMessages.push(text);
+                      } else {
+                        currentMessages[0] = text;
+                      }
+                      onUpdateHero({ ...heroSettings, messages: currentMessages });
+                    }}
+                    className="border-r-2 border-accent pr-1 font-mono text-accent outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent"
+                  >
+                    {heroSettings?.messages?.[0] || "Nova mensagem da Hero"}
+                  </span>
+                ) : (
+                  <Typewriter
+                    messages={heroSettings?.messages || []}
+                    typingSpeed={heroSettings?.typingSpeed || 100}
+                    deletingSpeed={heroSettings?.deletingSpeed || 50}
+                    pauseStart={heroSettings?.pauseStart || 500}
+                    pauseEnd={heroSettings?.pauseEnd || 2000}
+                  />
+                )}
               </h1>
 
               <p className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px]">
-                {(siteSettings?.about || "").split(".")[0]}. {siteSettings?.thought || ""}
+                <span
+                  contentEditable={isEditable}
+                  suppressContentEditableWarning
+                  onBlur={(e) => {
+                    if (onUpdateSite) {
+                      const firstSentence = e.currentTarget.textContent || "";
+                      const restOfAbout = (siteSettings?.about || "").split(".").slice(1).join(".");
+                      onUpdateSite({ ...siteSettings, about: firstSentence.trim() + "." + (restOfAbout ? restOfAbout : "") });
+                    }
+                  }}
+                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""}
+                >
+                  {(siteSettings?.about || "").split(".")[0]}
+                </span>
+                .{" "}
+                <span
+                  contentEditable={isEditable}
+                  suppressContentEditableWarning
+                  onBlur={(e) => {
+                    if (onUpdateSite) {
+                      onUpdateSite({ ...siteSettings, thought: e.currentTarget.textContent || "" });
+                    }
+                  }}
+                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""}
+                >
+                  {siteSettings?.thought || ""}
+                </span>
               </p>
 
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
@@ -257,7 +445,14 @@ export default function ClientPage({
                   href="#projetos"
                   className="bg-accent text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full hover:opacity-90 transition-all cursor-pointer shadow-[0_0_15px_rgba(148,255,71,0.2)]"
                 >
-                  Ver Projetos
+                  <span
+                    contentEditable={isEditable}
+                    suppressContentEditableWarning
+                    onBlur={(e) => updateEditableText("heroProjectsButton", e.currentTarget.textContent || "")}
+                    className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                  >
+                    {getEditableText("heroProjectsButton", "Ver Projetos")}
+                  </span>
                 </a>
                 {siteSettings?.linkedin && (
                   <a
@@ -267,7 +462,14 @@ export default function ClientPage({
                     className="border border-border/40 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-2"
                   >
                     <LinkedinIcon size={18} />
-                    <span>LinkedIn</span>
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("linkedinButtonLabel", e.currentTarget.textContent || "")}
+                      className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                    >
+                      {getEditableText("linkedinButtonLabel", "LinkedIn")}
+                    </span>
                   </a>
                 )}
                 {siteSettings?.github && (
@@ -278,7 +480,14 @@ export default function ClientPage({
                     className="border border-border/40 hover:bg-zinc-800 dark:hover:bg-zinc-100 dark:hover:text-primary hover:text-white hover:border-zinc-800 dark:hover:border-zinc-100 text-text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-2"
                   >
                     <GithubIcon size={18} />
-                    <span>GitHub</span>
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("githubButtonLabel", e.currentTarget.textContent || "")}
+                      className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                    >
+                      {getEditableText("githubButtonLabel", "GitHub")}
+                    </span>
                   </a>
                 )}
               </div>
@@ -297,22 +506,70 @@ export default function ClientPage({
                 {/* Left Bio Column */}
                 <div className="flex-1 flex flex-col justify-between gap-6">
                   <div>
-                    <span className="font-sans text-accent text-sm font-semibold uppercase tracking-widest">Sobre Mim</span>
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("aboutLabel", e.currentTarget.textContent || "")}
+                      className={`font-sans text-accent text-sm font-semibold uppercase tracking-widest ${
+                        isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+                      }`}
+                    >
+                      {getEditableText("aboutLabel", "Sobre Mim")}
+                    </span>
                     <h2 className="font-sans font-medium text-text-primary text-[36px] sm:text-[42px] leading-tight tracking-tight mt-2 mb-6">
-                      Minha História
+                      <span
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("aboutTitle", e.currentTarget.textContent || "")}
+                        className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                      >
+                        {getEditableText("aboutTitle", "Minha História")}
+                      </span>
                     </h2>
-                    <p className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed mb-6">
+                    <p
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => {
+                        if (onUpdateSite) {
+                          onUpdateSite({ ...siteSettings, about: e.currentTarget.textContent || "" });
+                        }
+                      }}
+                      className={`font-sans text-text-secondary text-base sm:text-lg leading-relaxed mb-6 ${
+                        isEditable ? "outline-dashed outline-1 outline-accent/40 p-2 rounded-lg focus:outline-accent" : ""
+                      }`}
+                    >
                       {siteSettings.about}
                     </p>
                   </div>
                   
                   {/* Big Quote / Thought block */}
                   <div className="relative border-l-2 border-accent pl-6 py-2 my-4">
-                    <p className="font-sans font-medium text-text-primary text-xl italic leading-relaxed">
-                      "{siteSettings.thought}"
+                    <p
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => {
+                        if (onUpdateSite) {
+                          let text = e.currentTarget.textContent || "";
+                          if (text.startsWith('"')) text = text.slice(1);
+                          if (text.endsWith('"')) text = text.slice(0, -1);
+                          onUpdateSite({ ...siteSettings, thought: text.trim() });
+                        }
+                      }}
+                      className={`font-sans font-medium text-text-primary text-xl italic leading-relaxed ${
+                        isEditable ? "outline-dashed outline-1 outline-accent/40 p-2 rounded-lg focus:outline-accent" : ""
+                      }`}
+                    >
+                      {isEditable ? siteSettings.thought : `"${siteSettings.thought}"`}
                     </p>
                     <p className="font-sans text-text-muted text-xs uppercase tracking-widest mt-2">
-                      — Filosofia de Trabalho
+                      <span
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("aboutThoughtLabel", e.currentTarget.textContent || "")}
+                        className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""}
+                      >
+                        {getEditableText("aboutThoughtLabel", "- Filosofia de Trabalho")}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -321,7 +578,14 @@ export default function ClientPage({
                 <div className="flex-1">
                   <div className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-8 sm:p-10 rounded-[32px] h-full flex flex-col justify-center">
                     <h3 className="font-sans font-bold text-text-primary text-2xl mb-8">
-                      Habilidades Principais
+                      <span
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("skillsTitle", e.currentTarget.textContent || "")}
+                        className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                      >
+                        {getEditableText("skillsTitle", "Habilidades Principais")}
+                      </span>
                     </h3>
                     
                     <div className="flex flex-col gap-6">
@@ -352,7 +616,14 @@ export default function ClientPage({
         )}
 
         {/* 4. TECNOLOGIAS CAROUSEL */}
-        {sectionsSettings?.sobreMim !== false && <CarrosselTecnologias technologies={technologies} />}
+        {sectionsSettings?.sobreMim !== false && (
+          <CarrosselTecnologias
+            technologies={technologies}
+            isEditable={isEditable}
+            getEditableText={getEditableText}
+            onUpdateText={updateEditableText}
+          />
+        )}
 
         {/* 5. PROJETOS EM DESTAQUE */}
         {sectionsSettings?.projetos !== false && (
@@ -360,9 +631,25 @@ export default function ClientPage({
             <div className="max-w-[1440px] mx-auto">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
                 <div>
-                  <span className="font-sans text-accent text-sm font-semibold uppercase tracking-widest">Portfólio</span>
+                  <span
+                    contentEditable={isEditable}
+                    suppressContentEditableWarning
+                    onBlur={(e) => updateEditableText("projectsLabel", e.currentTarget.textContent || "")}
+                    className={`font-sans text-accent text-sm font-semibold uppercase tracking-widest ${
+                      isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+                    }`}
+                  >
+                    {getEditableText("projectsLabel", "Portfólio")}
+                  </span>
                   <h2 className="font-sans font-medium text-text-primary text-[36px] sm:text-[42px] leading-tight tracking-tight mt-2">
-                    Projetos Recentes
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("projectsTitle", e.currentTarget.textContent || "")}
+                      className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                    >
+                      {getEditableText("projectsTitle", "Projetos Recentes")}
+                    </span>
                   </h2>
                 </div>
 
@@ -376,7 +663,14 @@ export default function ClientPage({
                         : "text-text-secondary hover:text-text-primary"
                     }`}
                   >
-                    Destaques
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("projectsFilterFeatured", e.currentTarget.textContent || "")}
+                      className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                    >
+                      {getEditableText("projectsFilterFeatured", "Destaques")}
+                    </span>
                   </button>
                   <button
                     onClick={() => setProjFilter("todos")}
@@ -386,7 +680,14 @@ export default function ClientPage({
                         : "text-text-secondary hover:text-text-primary"
                     }`}
                   >
-                    Todos
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("projectsFilterAll", e.currentTarget.textContent || "")}
+                      className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                    >
+                      {getEditableText("projectsFilterAll", "Todos")}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -465,13 +766,28 @@ export default function ClientPage({
         {sectionsSettings?.servicos !== false && <OQueDesenvolvo services={services} />}
 
         {/* 8. JORNADA (TIMELINE) */}
-        {sectionsSettings?.jornada !== false && <LinhaDoTempo timeline={timelineSettings.timeline} />}
+        {sectionsSettings?.jornada !== false && (
+          <LinhaDoTempo
+            timeline={timelineSettings.timeline}
+            isEditable={isEditable}
+            getEditableText={getEditableText}
+            onUpdateText={updateEditableText}
+          />
+        )}
 
         {/* 9. DEPOIMENTOS SECTION */}
         {sectionsSettings?.depoimentos !== false && <Depoimentos testimonials={testimonials} />}
 
         {/* 10. CERTIFICAÇÕES SECTION */}
-        {sectionsSettings?.certificacoes !== false && <Certificacoes education={education} certifications={certifications} />}
+        {sectionsSettings?.certificacoes !== false && (
+          <Certificacoes
+            education={education}
+            certifications={certifications}
+            isEditable={isEditable}
+            getEditableText={getEditableText}
+            onUpdateText={updateEditableText}
+          />
+        )}
 
         {/* 11. CONTATO (FORM + CONTACT DETAILS) */}
         {sectionsSettings?.contato !== false && (
@@ -481,12 +797,38 @@ export default function ClientPage({
               {/* Left Contact Info Column */}
               <div className="flex-1 flex flex-col justify-between gap-6">
                 <div>
-                  <span className="font-sans text-accent text-sm font-semibold uppercase tracking-widest">Contato</span>
+                  <span
+                    contentEditable={isEditable}
+                    suppressContentEditableWarning
+                    onBlur={(e) => updateEditableText("contactLabel", e.currentTarget.textContent || "")}
+                    className={`font-sans text-accent text-sm font-semibold uppercase tracking-widest ${
+                      isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+                    }`}
+                  >
+                    {getEditableText("contactLabel", "Contato")}
+                  </span>
                   <h2 className="font-sans font-medium text-text-primary text-[36px] sm:text-[42px] leading-tight tracking-tight mt-2 mb-6">
-                    Vamos Construir Algo Juntos?
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("contactTitle", e.currentTarget.textContent || "")}
+                      className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                    >
+                      {getEditableText("contactTitle", "Vamos Construir Algo Juntos?")}
+                    </span>
                   </h2>
-                  <p className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px]">
-                    Entre em contato para discutirmos projetos de automação comercial, portfólios, integrações de APIs ou contratação de serviços de desenvolvimento.
+                  <p
+                    contentEditable={isEditable}
+                    suppressContentEditableWarning
+                    onBlur={(e) => updateEditableText("contactDescription", e.currentTarget.textContent || "")}
+                    className={`font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px] ${
+                      isEditable ? "outline-dashed outline-1 outline-accent/40 p-2 rounded focus:outline-accent" : ""
+                    }`}
+                  >
+                    {getEditableText(
+                      "contactDescription",
+                      "Entre em contato para discutirmos projetos de automação comercial, portfólios, integrações de APIs ou contratação de serviços de desenvolvimento."
+                    )}
                   </p>
                 </div>
 
@@ -497,7 +839,16 @@ export default function ClientPage({
                       <Mail size={18} />
                     </div>
                     <div>
-                      <p className="font-sans text-text-muted text-xs uppercase tracking-wider">E-mail</p>
+                      <p
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("contactEmailLabel", e.currentTarget.textContent || "")}
+                        className={`font-sans text-text-muted text-xs uppercase tracking-wider ${
+                          isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+                        }`}
+                      >
+                        {getEditableText("contactEmailLabel", "E-mail")}
+                      </p>
                       <a href={`mailto:${siteSettings?.email || ""}`} className="font-sans text-text-primary font-semibold text-base sm:text-lg hover:underline break-all">
                         {siteSettings?.email || ""}
                       </a>
@@ -509,7 +860,16 @@ export default function ClientPage({
                       <Phone size={18} />
                     </div>
                     <div>
-                      <p className="font-sans text-text-muted text-xs uppercase tracking-wider">Telefone</p>
+                      <p
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("contactPhoneLabel", e.currentTarget.textContent || "")}
+                        className={`font-sans text-text-muted text-xs uppercase tracking-wider ${
+                          isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+                        }`}
+                      >
+                        {getEditableText("contactPhoneLabel", "Telefone")}
+                      </p>
                       <a href={`tel:${(siteSettings?.phone || "").replace(/[^+\d]/g, "")}`} className="font-sans text-text-primary font-semibold text-base sm:text-lg hover:underline">
                         {siteSettings?.phone || ""}
                       </a>
@@ -521,7 +881,16 @@ export default function ClientPage({
                       <MapPin size={18} />
                     </div>
                     <div>
-                      <p className="font-sans text-text-muted text-xs uppercase tracking-wider">Localização</p>
+                      <p
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("contactLocationLabel", e.currentTarget.textContent || "")}
+                        className={`font-sans text-text-muted text-xs uppercase tracking-wider ${
+                          isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""
+                        }`}
+                      >
+                        {getEditableText("contactLocationLabel", "Localização")}
+                      </p>
                       <span className="font-sans text-text-primary font-semibold text-base sm:text-lg">
                         {siteSettings?.location || ""}
                       </span>
@@ -541,45 +910,82 @@ export default function ClientPage({
               <div className="flex-1">
                 <div className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-8 sm:p-10 rounded-[32px] h-full">
                   <h3 className="font-sans font-bold text-text-primary text-2xl mb-8">
-                    Envie uma Mensagem
+                    <span
+                      contentEditable={isEditable}
+                      suppressContentEditableWarning
+                      onBlur={(e) => updateEditableText("contactFormTitle", e.currentTarget.textContent || "")}
+                      className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
+                    >
+                      {getEditableText("contactFormTitle", "Envie uma Mensagem")}
+                    </span>
                   </h3>
 
                   <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="form-name" className="font-sans text-text-secondary text-sm font-semibold">Nome Completo</label>
+                      <label
+                        htmlFor="form-name"
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("contactFormNameLabel", e.currentTarget.textContent || "")}
+                        className={`font-sans text-text-secondary text-sm font-semibold ${
+                          isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent inline-block" : ""
+                        }`}
+                      >
+                        {getEditableText("contactFormNameLabel", "Nome Completo")}
+                      </label>
                       <input
                         type="text"
                         id="form-name"
                         required
                         value={formState.name}
                         onChange={(e) => setFormState(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Seu nome"
+                        placeholder={getEditableText("contactFormNamePlaceholder", "Seu nome")}
                         className="bg-primary/50 border border-border/20 text-text-primary font-sans text-base px-5 py-3 rounded-2xl outline-none focus:border-accent transition-colors"
                       />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="form-email" className="font-sans text-text-secondary text-sm font-semibold">E-mail</label>
+                      <label
+                        htmlFor="form-email"
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("contactFormEmailLabel", e.currentTarget.textContent || "")}
+                        className={`font-sans text-text-secondary text-sm font-semibold ${
+                          isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent inline-block" : ""
+                        }`}
+                      >
+                        {getEditableText("contactFormEmailLabel", "E-mail")}
+                      </label>
                       <input
                         type="email"
                         id="form-email"
                         required
                         value={formState.email}
                         onChange={(e) => setFormState(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="seu.email@exemplo.com"
+                        placeholder={getEditableText("contactFormEmailPlaceholder", "seu.email@exemplo.com")}
                         className="bg-primary/50 border border-border/20 text-text-primary font-sans text-base px-5 py-3 rounded-2xl outline-none focus:border-accent transition-colors"
                       />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="form-message" className="font-sans text-text-secondary text-sm font-semibold">Sua Mensagem</label>
+                      <label
+                        htmlFor="form-message"
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("contactFormMessageLabel", e.currentTarget.textContent || "")}
+                        className={`font-sans text-text-secondary text-sm font-semibold ${
+                          isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent inline-block" : ""
+                        }`}
+                      >
+                        {getEditableText("contactFormMessageLabel", "Sua Mensagem")}
+                      </label>
                       <textarea
                         id="form-message"
                         required
                         rows={4}
                         value={formState.message}
                         onChange={(e) => setFormState(prev => ({ ...prev, message: e.target.value }))}
-                        placeholder="Escreva sobre o seu projeto ou dúvidas..."
+                        placeholder={getEditableText("contactFormMessagePlaceholder", "Escreva sobre o seu projeto ou dúvidas...")}
                         className="bg-primary/50 border border-border/20 text-text-primary font-sans text-base px-5 py-3 rounded-2xl outline-none focus:border-accent resize-none transition-colors"
                       />
                     </div>
@@ -590,10 +996,17 @@ export default function ClientPage({
                       className="bg-accent text-primary font-sans font-semibold text-base py-3.5 rounded-full hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer transition-all mt-2"
                     >
                       {isSending ? (
-                        <span>Enviando...</span>
+                        <span>{getEditableText("contactFormSending", "Enviando...")}</span>
                       ) : (
                         <>
-                          <span>Enviar Mensagem</span>
+                          <span
+                            contentEditable={isEditable}
+                            suppressContentEditableWarning
+                            onBlur={(e) => updateEditableText("contactFormSubmit", e.currentTarget.textContent || "")}
+                            className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                          >
+                            {getEditableText("contactFormSubmit", "Enviar Mensagem")}
+                          </span>
                           <Send size={16} />
                         </>
                       )}
@@ -715,7 +1128,14 @@ export default function ClientPage({
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-accent text-primary font-sans font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 transition-all"
                     >
-                      <span>Acessar Projeto</span>
+                      <span
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("projectModalOpenLabel", e.currentTarget.textContent || "")}
+                        className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                      >
+                        {getEditableText("projectModalOpenLabel", "Acessar Projeto")}
+                      </span>
                       <ExternalLink size={16} />
                     </a>
                   )}
@@ -728,7 +1148,14 @@ export default function ClientPage({
                       className="flex items-center gap-2 border border-border/40 text-text-primary font-sans font-semibold text-sm px-6 py-3 rounded-full hover:bg-border/10 transition-all"
                     >
                       <GithubIcon size={16} />
-                      <span>Ver Código</span>
+                      <span
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("projectModalCodeLabel", e.currentTarget.textContent || "")}
+                        className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""}
+                      >
+                        {getEditableText("projectModalCodeLabel", "Ver Código")}
+                      </span>
                     </a>
                   )}
                 </div>

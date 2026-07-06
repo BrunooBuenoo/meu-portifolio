@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Edit2, LogOut, Check, ArrowLeft, Eye, MessageSquare, Laptop, Cpu, Tags, Database, Save, Upload, GraduationCap, Award, BarChart2 } from "lucide-react";
+import ClientPage from "../ClientPage";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -69,6 +70,8 @@ export default function ClientAdmin({
   skills: initialSkills,
   services: initialServices,
   testimonials: initialTestimonials,
+  themeColors: initialThemeColors,
+  themeConfig: initialThemeConfig,
   initialMessages,
   initialCaseReal,
   initialEducation,
@@ -84,6 +87,8 @@ export default function ClientAdmin({
   // Dynamic States loaded from initial props or refreshed
   const [site, setSite] = useState(initialSite);
   const [hero, setHero] = useState(initialHero);
+  const [visualDraftSite, setVisualDraftSite] = useState(initialSite);
+  const [visualDraftHero, setVisualDraftHero] = useState(initialHero);
   const [projectsList, setProjectsList] = useState(initialProjects);
   const [techList, setTechList] = useState(initialTech);
   const [skillsList, setSkillsList] = useState(initialSkills);
@@ -193,6 +198,14 @@ export default function ClientAdmin({
       setTimeout(() => setErrorMsg(""), 3500);
     }
   };
+
+  useEffect(() => {
+    setVisualDraftSite(site);
+  }, [site]);
+
+  useEffect(() => {
+    setVisualDraftHero(hero);
+  }, [hero]);
 
   // Convert uploaded image to Base64 String
   const convertToBase64 = (file: File): Promise<string> => {
@@ -683,6 +696,36 @@ export default function ClientAdmin({
     }
   };
 
+  // ==========================================
+  // HANDLERS: EDITOR VISUAL (PREVIEW + PUBLICAR)
+  // ==========================================
+  const hasVisualDraftChanges =
+    JSON.stringify(visualDraftSite || {}) !== JSON.stringify(site || {}) ||
+    JSON.stringify(visualDraftHero || {}) !== JSON.stringify(hero || {});
+
+  const handlePublishVisualDraft = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        updateSiteSettings(visualDraftSite),
+        updateHeroSettings(visualDraftHero)
+      ]);
+      setSite(visualDraftSite);
+      setHero(visualDraftHero);
+      triggerFeedback("success", "Alterações visuais publicadas com sucesso!");
+    } catch (err) {
+      triggerFeedback("error", "Falha ao publicar alterações visuais.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDiscardVisualDraft = () => {
+    setVisualDraftSite(site);
+    setVisualDraftHero(hero);
+    triggerFeedback("success", "Rascunho visual descartado.");
+  };
+
   // Render Login page if not authenticated
   if (!isAuthenticated) {
     return (
@@ -783,12 +826,30 @@ export default function ClientAdmin({
         </div>
       </header>
 
-      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 w-full grid grid-cols-1 lg:grid-cols-4 gap-8 mt-10">
+      {activeTab === "editorvisual" && (
+        <button
+          type="button"
+          onClick={() => setActiveTab("geral")}
+          className="fixed right-6 sm:right-10 top-24 z-50 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-zinc-700 bg-zinc-950/95 text-zinc-100 hover:bg-zinc-800 backdrop-blur-md flex items-center gap-2"
+        >
+          <ArrowLeft size={14} />
+          <span>Voltar para opcoes</span>
+        </button>
+      )}
+
+      <div
+        className={`w-full grid ${
+          activeTab === "editorvisual"
+            ? "grid-cols-1 gap-0 mt-0"
+            : "max-w-[1440px] mx-auto px-6 sm:px-10 grid-cols-1 lg:grid-cols-4 gap-8 mt-10"
+        }`}
+      >
         
         {/* Left Sidebar navigation tab list */}
-        <aside className="lg:col-span-1 flex flex-col gap-2">
+        <aside className={`${activeTab === "editorvisual" ? "hidden" : "lg:col-span-1 flex flex-col gap-2"}`}>
           {[
             { id: "geral", label: "Dados Gerais" },
+            { id: "editorvisual", label: "Editor Visual da Landing" },
             { id: "secoes", label: "Visibilidade de Seções" },
             { id: "hero", label: "Hero & Escrita" },
             { id: "estatisticas", label: "Contadores / Stats" },
@@ -827,7 +888,9 @@ export default function ClientAdmin({
         </aside>
 
         {/* Right Content dashboard editor container */}
-        <main className="lg:col-span-3 bg-zinc-900/30 backdrop-blur-sm border border-zinc-800/60 p-6 sm:p-10 rounded-[32px]">
+        <main className={`${activeTab === "editorvisual" ? "col-span-1" : "lg:col-span-3"} bg-zinc-900/30 backdrop-blur-sm border border-zinc-800/60 ${
+          activeTab === "editorvisual" ? "p-0 overflow-hidden rounded-none min-h-[calc(100vh-80px)]" : "p-6 sm:p-10 rounded-[32px]"
+        }`}>
           
           {/* Status Feedback Toasts inside card */}
           {successMsg && (
@@ -838,6 +901,72 @@ export default function ClientAdmin({
           {errorMsg && (
             <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4.5 rounded-2xl font-sans text-sm font-semibold text-center mb-6">
               {errorMsg}
+            </div>
+          )}
+
+          {/* ==========================================
+              TAB: EDITOR VISUAL DA LANDING PAGE
+             ========================================== */}
+          {activeTab === "editorvisual" && (
+            <div className="flex flex-col h-full min-h-[calc(100vh-80px)]">
+              <div className="sticky top-0 z-30 bg-zinc-950/95 border-b border-zinc-800 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h3 className="font-sans font-bold text-base sm:text-lg">Editor Visual da Landing</h3>
+                  <p className="text-zinc-400 text-xs sm:text-sm">
+                    Edite direto no layout. As mudanças ficam em rascunho e so vao ao ar quando voce clicar em Publicar.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("geral")}
+                    className="px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-zinc-700 text-zinc-200 hover:bg-zinc-800"
+                  >
+                    Voltar ao painel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDiscardVisualDraft}
+                    disabled={loading || !hasVisualDraftChanges}
+                    className="px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-zinc-700 text-zinc-200 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Descartar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePublishVisualDraft}
+                    disabled={loading || !hasVisualDraftChanges}
+                    className="bg-[#94ff47] text-[#09090b] font-sans font-semibold text-xs sm:text-sm px-5 py-2 rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                  >
+                    <Upload size={14} />
+                    <span>{loading ? "Publicando..." : "Publicar"}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-0 bg-zinc-950">
+                <ClientPage
+                  siteSettings={visualDraftSite}
+                  heroSettings={visualDraftHero}
+                  statsSettings={{ stats }}
+                  timelineSettings={{ timeline: timelineItems }}
+                  projects={projectsList}
+                  technologies={techList}
+                  skills={skillsList}
+                  themeColors={initialThemeColors}
+                  themeConfig={initialThemeConfig}
+                  services={servicesList}
+                  testimonials={testimonialsList}
+                  caseReal={caseReal}
+                  education={educationList}
+                  certifications={certificationsList}
+                  sectionsSettings={sectionsSettings}
+                  isEditable
+                  onUpdateSite={(updatedSite) => setVisualDraftSite(updatedSite)}
+                  onUpdateHero={(updatedHero) => setVisualDraftHero(updatedHero)}
+                />
+              </div>
             </div>
           )}
 
@@ -966,7 +1095,7 @@ export default function ClientAdmin({
                   { key: "projetos", label: "Projetos (Portfólio)" },
                   { key: "jornada", label: "Jornada (Linha do Tempo)" },
                   { key: "casoReal", label: "Estudo de Caso (Caso Real)" },
-                  { key: "credenciais", label: "Educação & Certificações" },
+                  { key: "certificacoes", label: "Educação & Certificações" },
                   { key: "depoimentos", label: "Depoimentos" },
                   { key: "contato", label: "Formulário de Contato" }
                 ].map((sec) => (

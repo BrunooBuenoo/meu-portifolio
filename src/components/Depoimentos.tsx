@@ -14,6 +14,7 @@ interface DepoimentosProps {
 }
 
 export default function Depoimentos({ testimonials = [] }: DepoimentosProps) {
+  if (!testimonials || testimonials.length === 0) return null;
 
   const containerVariants = {
     hidden: {},
