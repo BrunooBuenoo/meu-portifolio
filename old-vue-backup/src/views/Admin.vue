@@ -2855,9 +2855,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--text-primary);
-  border-radius: 50%;
-  color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .stats-content {
