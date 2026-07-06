@@ -1,33 +1,39 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { AuthProvider } from '@/context/AuthContext'
-import { ThemeProvider } from '@/context/ThemeContext'
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "@/context/ThemeContext";
+import "./globals.css";
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-})
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: 'Bruno Bueno | Portfólio de Desenvolvimento',
-  description: 'Portfólio profissional de Bruno Bueno, Desenvolvedor de Software Full Stack. Conheça meus projetos, habilidades e entre em contato.',
-}
+  title: "Bruno Bueno | Desenvolvedor Full Stack & Automação Comercial",
+  description: "Portfólio profissional de Bruno Bueno, Desenvolvedor Full Stack especializado em automação comercial, APIs integradas e soluções de alta performance para o varejo.",
+  keywords: ["Bruno Bueno", "Full Stack", "Desenvolvedor", "Automação Comercial", "Next.js", "Tailwind CSS", "Firebase", "Varejo"],
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-primary text-txt-primary selection:bg-accent selection:text-primary transition-colors duration-300">
-        <AuthProvider>
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
-        </AuthProvider>
+    <html
+      lang="pt-BR"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
