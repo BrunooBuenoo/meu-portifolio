@@ -426,6 +426,16 @@ export default function ClientPage({
   // Filtered projects
   const filteredProjects = projects.filter((p) => projFilter === "todos" || p.featured);
 
+  useEffect(() => {
+    const rafId = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
+  }, [projFilter, filteredProjects.length]);
+
   // Handle contact form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -493,6 +503,24 @@ export default function ClientPage({
       gsap.set(heroButtons, { opacity: 0, y: 16 });
       gsap.set(heroImageEl, { x: "110vw" });
 
+      const imageExitTween = gsap.fromTo(
+        heroImageEl,
+        { x: 0 },
+        {
+          x: "110vw",
+          immediateRender: false,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroSectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+      imageExitTween.scrollTrigger?.disable();
+
       const tl = gsap.timeline({ defaults: { overwrite: "auto" } });
 
       tl.to(mainContentEls, {
@@ -513,10 +541,17 @@ export default function ClientPage({
           x: 0,
           duration: 1.4,
           ease: "power4.out",
+          onComplete: () => {
+            const trigger = imageExitTween.scrollTrigger;
+            if (!trigger) return;
+            trigger.enable();
+            trigger.refresh();
+          },
         });
 
       return () => {
         tl.kill();
+        imageExitTween.kill();
       };
     },
     {

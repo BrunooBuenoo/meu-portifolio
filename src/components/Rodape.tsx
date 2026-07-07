@@ -101,15 +101,7 @@ export default function Rodape({
         <div className="border-t border-border/40 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-sans font-normal text-text-muted text-xs text-center sm:text-left">
             © {currentYear} {name}. Todos os direitos reservados.
-          </p>
-          <div className="flex gap-6">
-            <span className="font-sans font-normal text-text-muted text-xs hover:text-text-primary transition-colors cursor-pointer">
-              Termos de Uso
-            </span>
-            <span className="font-sans font-normal text-text-muted text-xs hover:text-text-primary transition-colors cursor-pointer">
-              Políticas
-            </span>
-          </div>
+          </p>          
         </div>
       </div>
     </footer>

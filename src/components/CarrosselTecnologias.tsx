@@ -1,6 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 interface Technology {
   name: string;
@@ -22,6 +27,23 @@ export default function CarrosselTecnologias({
   onUpdateText
 }: CarrosselTecnologiasProps) {
   const [activeCategory, setActiveCategory] = useState("Todos");
+  const [viewportWidth, setViewportWidth] = useState(1920);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const topRowRef = useRef<HTMLDivElement | null>(null);
+  const bottomRowRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const updateViewportWidth = () => {
+      setViewportWidth(window.innerWidth || 1920);
+    };
+
+    updateViewportWidth();
+    window.addEventListener("resize", updateViewportWidth);
+
+    return () => {
+      window.removeEventListener("resize", updateViewportWidth);
+    };
+  }, []);
 
   // Extrair categorias exclusivas
   const categories = useMemo(() => {
@@ -39,17 +61,81 @@ export default function CarrosselTecnologias({
     return technologies.filter((tech) => tech.category === activeCategory);
   }, [technologies, activeCategory]);
 
-  // Duplicar a lista para dar o efeito de scroll infinito sem emendas
-  const duplicatedTechs = useMemo(() => {
-    if (filteredTechs.length === 0) return [];
-    // Duplicamos o suficiente para preencher a tela (mínimo de 3 repetições se a lista for curta)
-    const repeatCount = Math.max(3, Math.ceil(15 / filteredTechs.length));
+  const [topBaseTechs, bottomBaseTechs] = useMemo(() => {
+    const top = filteredTechs.filter((_, idx) => idx % 2 === 0);
+    const bottom = filteredTechs.filter((_, idx) => idx % 2 !== 0);
+
+    if (top.length === 0) return [filteredTechs, filteredTechs] as const;
+    if (bottom.length === 0) return [top, top] as const;
+
+    return [top, bottom] as const;
+  }, [filteredTechs]);
+
+  const duplicateForRibbon = (list: Technology[]) => {
+    if (list.length === 0) return [];
+
+    // Guarantees long tracks so scroll-linked horizontal motion never reveals empty space.
+    const estimatedChipWidth = 180;
+    const baseSetEstimatedWidth = list.length * estimatedChipWidth;
+    const targetTrackWidth = viewportWidth * 3.2;
+    const repeatCount = Math.max(6, Math.ceil(targetTrackWidth / baseSetEstimatedWidth));
+
     let result: Technology[] = [];
     for (let i = 0; i < repeatCount; i++) {
-      result = [...result, ...filteredTechs];
+      result = [...result, ...list];
     }
     return result;
-  }, [filteredTechs]);
+  };
+
+  const duplicatedTopTechs = useMemo(
+    () => duplicateForRibbon(topBaseTechs),
+    [topBaseTechs, viewportWidth]
+  );
+  const duplicatedBottomTechs = useMemo(
+    () => duplicateForRibbon(bottomBaseTechs),
+    [bottomBaseTechs, viewportWidth]
+  );
+
+  useGSAP(
+    () => {
+      const sectionEl = sectionRef.current;
+      const topRowEl = topRowRef.current;
+      const bottomRowEl = bottomRowRef.current;
+
+      if (!sectionEl || !topRowEl || !bottomRowEl) return;
+
+      const viewportTrackWidth = sectionEl.clientWidth;
+      const topMaxShift = Math.max(0, topRowEl.scrollWidth - viewportTrackWidth);
+      const bottomMaxShift = Math.max(0, bottomRowEl.scrollWidth - viewportTrackWidth);
+      const movementFactor = 0.2;
+      const topTravel = topMaxShift * movementFactor;
+      const bottomTravel = bottomMaxShift * movementFactor;
+
+      gsap.set(topRowEl, { x: 0 });
+      gsap.set(bottomRowEl, { x: -bottomTravel });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionEl,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      tl.to(topRowEl, { x: -topTravel, ease: "none" }, 0)
+        .to(bottomRowEl, { x: 0, ease: "none" }, 0);
+
+      return () => {
+        tl.kill();
+      };
+    },
+    {
+      scope: sectionRef,
+      dependencies: [activeCategory, duplicatedTopTechs.length, duplicatedBottomTechs.length],
+    }
+  );
 
   // Helper para renderizar ícones
   const renderTechIcon = (tech: Technology) => {
@@ -84,7 +170,7 @@ export default function CarrosselTecnologias({
   };
 
   return (
-    <section className="bg-primary py-20 overflow-hidden transition-colors" id="tecnologias">
+    <section ref={sectionRef} className="bg-primary py-20 overflow-hidden transition-colors" id="tecnologias">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-10 text-center mb-10">
         <h2 className="font-sans font-medium text-text-primary text-[36px] sm:text-[42px] leading-tight tracking-tight mb-4">
           <span
@@ -139,25 +225,40 @@ export default function CarrosselTecnologias({
         </div>
       </div>
 
-      {/* Infinite Scroll Container */}
+      {/* Scroll-Synced Rows */}
       <div className="relative w-full overflow-hidden py-4 select-none">
         {/* Left/Right Glass Fades */}
         <div className="absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-primary to-transparent z-10 pointer-events-none" />
         <div className="absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-primary to-transparent z-10 pointer-events-none" />
 
-        {/* Sliding Ribbon */}
-        <div className="flex w-max animate-infinite-scroll hover:[animation-play-state:paused] gap-5 px-5">
-          {duplicatedTechs.map((tech, idx) => (
-            <div
-              key={`${tech.name}-${idx}`}
-              className="flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full select-none"
-            >
-              {renderTechIcon(tech)}
-              <span className="font-sans font-medium text-text-primary text-base whitespace-nowrap">
-                {tech.name}
-              </span>
-            </div>
-          ))}
+        <div className="flex flex-col gap-5">
+          <div ref={topRowRef} className="flex w-max gap-5 px-5 will-change-transform">
+            {duplicatedTopTechs.map((tech, idx) => (
+              <div
+                key={`top-${tech.name}-${idx}`}
+                className="flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full select-none"
+              >
+                {renderTechIcon(tech)}
+                <span className="font-sans font-medium text-text-primary text-base whitespace-nowrap">
+                  {tech.name}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div ref={bottomRowRef} className="flex w-max gap-5 px-5 will-change-transform">
+            {duplicatedBottomTechs.map((tech, idx) => (
+              <div
+                key={`bottom-${tech.name}-${idx}`}
+                className="flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full select-none"
+              >
+                {renderTechIcon(tech)}
+                <span className="font-sans font-medium text-text-primary text-base whitespace-nowrap">
+                  {tech.name}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
