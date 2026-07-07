@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bruno Bueno | Desenvolvedor Full Stack & Automação Comercial",
+  title: "Bruno Bueno",
   description: "Portfólio profissional de Bruno Bueno, Desenvolvedor Full Stack especializado em automação comercial, APIs integradas e soluções de alta performance para o varejo.",
   keywords: ["Bruno Bueno", "Full Stack", "Desenvolvedor", "Automação Comercial", "Next.js", "Tailwind CSS", "Firebase", "Varejo"],
 };
@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body suppressHydrationWarning className="min-h-full flex flex-col">
         <ThemeProvider>
           {children}
         </ThemeProvider>

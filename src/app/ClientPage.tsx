@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Phone, MapPin, X, ArrowUpRight, ExternalLink, Send } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
@@ -182,6 +182,9 @@ interface ThemeConfigEntry {
 
 type ThemeConfig = Record<string, ThemeConfigEntry | undefined>;
 
+const KEYBOARD_SPACE_SAMPLE_PATH = "/sounds/space.mp3";
+const KEYBOARD_FALLBACK_SAMPLE_PATH = "/sounds/type-1.mp3";
+
 // ==========================================
 // TYPEWRITER COMPONENT
 // ==========================================
@@ -201,6 +204,104 @@ function Typewriter({
   const [currentIdx, setCurrentIdx] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const prevLengthRef = useRef(0);
+  const keyboardSamplesRef = useRef<HTMLAudioElement[]>([]);
+  const keyboardSpaceSampleRef = useRef<HTMLAudioElement | null>(null);
+  const lastSoundAtRef = useRef(0);
+  const canPlaySoundRef = useRef(false);
+
+  useEffect(() => {
+    const unlockAudio = () => {
+      canPlaySoundRef.current = true;
+
+      const loadSamples = async () => {
+        if (!keyboardSpaceSampleRef.current) {
+          const spaceAudio = new Audio(KEYBOARD_SPACE_SAMPLE_PATH);
+          spaceAudio.preload = "auto";
+          spaceAudio.load();
+          keyboardSpaceSampleRef.current = spaceAudio;
+        }
+
+        if (keyboardSamplesRef.current.length > 0) return;
+
+        try {
+          const response = await fetch("/api/sounds/typing", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("failed to fetch typing sounds");
+          }
+
+          const data = (await response.json()) as { keySamples?: string[] };
+          const samples = Array.isArray(data.keySamples) ? data.keySamples : [];
+
+          keyboardSamplesRef.current = samples.map((path) => {
+            const audio = new Audio(path);
+            audio.preload = "auto";
+            audio.load();
+            return audio;
+          });
+        } catch {
+          const fallbackAudio = new Audio(KEYBOARD_FALLBACK_SAMPLE_PATH);
+          fallbackAudio.preload = "auto";
+          fallbackAudio.load();
+          keyboardSamplesRef.current = [fallbackAudio];
+        }
+      };
+
+      void loadSamples();
+    };
+
+    const cleanupAudio = () => {
+      for (const sample of keyboardSamplesRef.current) {
+        sample.pause();
+        sample.src = "";
+      }
+
+      keyboardSamplesRef.current = [];
+
+      if (keyboardSpaceSampleRef.current) {
+        keyboardSpaceSampleRef.current.pause();
+        keyboardSpaceSampleRef.current.src = "";
+        keyboardSpaceSampleRef.current = null;
+      }
+    };
+
+    window.addEventListener("pointerdown", unlockAudio, { once: true });
+    window.addEventListener("keydown", unlockAudio, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+      cleanupAudio();
+    };
+  }, []);
+
+  useEffect(() => {
+    const typedNewChar = currentText.length > prevLengthRef.current && !isDeleting;
+
+    if (typedNewChar && canPlaySoundRef.current) {
+      const nowPerf = performance.now();
+      // Prevent unnaturally dense clicks on very fast typing settings.
+      if (nowPerf - lastSoundAtRef.current >= 28) {
+        lastSoundAtRef.current = nowPerf;
+
+        const typedChar = currentText[currentText.length - 1] || "";
+        if (typedChar === " " && keyboardSpaceSampleRef.current) {
+          const spaceClick = keyboardSpaceSampleRef.current.cloneNode(true) as HTMLAudioElement;
+          spaceClick.volume = 0.2;
+          spaceClick.playbackRate = 1;
+          spaceClick.play().catch(() => undefined);
+        } else if (keyboardSamplesRef.current.length > 0) {
+          const sampleIndex = Math.floor(Math.random() * keyboardSamplesRef.current.length);
+          const click = keyboardSamplesRef.current[sampleIndex].cloneNode(true) as HTMLAudioElement;
+          click.volume = 0.18;
+          click.playbackRate = 1;
+          click.play().catch(() => undefined);
+        }
+      }
+    }
+
+    prevLengthRef.current = currentText.length;
+  }, [currentText, isDeleting]);
 
   useEffect(() => {
     if (!messages || messages.length === 0) return;
@@ -396,13 +497,15 @@ export default function ClientPage({
             <div className="hero-glow w-full h-[700px] absolute top-[-100px] left-1/2 -translate-x-1/2" style={getGlowStyle()} />
           </div>
 
-          {/* Imagem de Fundo da Hero (Sem Bordas, sob o texto, alinhada à direita) */}
+          {/* Imagem de Fundo da Hero com overlay de simulacao na tela do notebook */}
           <div className="absolute right-0 bottom-0 w-full h-[55%] lg:h-full lg:w-[70%] z-0 pointer-events-none flex items-end justify-end opacity-20 lg:opacity-100 transition-opacity">
-            <img
-              src="/images/hero.png"
-              alt="Bueno Portfolio Background Mockup"
-              className="w-full h-auto max-h-[45vh] lg:max-h-[85vh] object-contain object-right-bottom select-none block"
-            />
+            <div className="relative w-full h-auto max-h-[45vh] lg:max-h-[85vh]">
+              <img
+                src="/images/hero-n.png"
+                alt="Bueno Portfolio Background Mockup"
+                className="w-full h-auto max-h-[45vh] lg:max-h-[85vh] object-contain object-right-bottom select-none block"
+              />              
+            </div>
           </div>
 
           <motion.div
