@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsapConfig";
 
 interface Experience {
   date: string;
@@ -23,6 +24,37 @@ export default function LinhaDoTempo({
   getEditableText,
   onUpdateText
 }: LinhaDoTempoProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current || timeline.length === 0) return;
+
+      const cards = gsap.utils.toArray<HTMLElement>("[data-timeline-card]", sectionRef.current);
+      if (cards.length === 0) return;
+
+      // Cada card entra individualmente ao aparecer na viewport
+      cards.forEach((card) => {
+        gsap.set(card, { opacity: 0, y: 40 });
+
+        ScrollTrigger.create({
+          trigger: card,
+          start: "top 85%",
+          once: true,
+          onEnter: () => {
+            gsap.to(card, {
+              opacity: 1,
+              y: 0,
+              duration: 0.55,
+              ease: "power3.out",
+            });
+          },
+        });
+      });
+    },
+    { scope: sectionRef, dependencies: [timeline.length] }
+  );
+
   if (timeline.length === 0) return null;
 
   const readText = (key: string, fallback: string) => {
@@ -35,7 +67,7 @@ export default function LinhaDoTempo({
   };
 
   return (
-    <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="jornada">
+    <section ref={sectionRef} className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="jornada">
       <div className="max-w-[1000px] mx-auto">
         <div className="text-center mb-20">
           <span
@@ -73,9 +105,9 @@ export default function LinhaDoTempo({
           </p>
         </div>
 
-        {/* Vertical Timeline Structure */}
+        {/* Estrutura Vertical da Timeline */}
         <div className="relative">
-          {/* Central Line */}
+          {/* Linha Central */}
           <div className="absolute left-4 sm:left-1/2 top-2 bottom-2 w-[1.5px] bg-border/40 -translate-x-1/2" />
 
           <div className="flex flex-col gap-12">
@@ -89,25 +121,22 @@ export default function LinhaDoTempo({
                     isEven ? "sm:flex-row-reverse" : ""
                   } relative items-stretch`}
                 >
-                  {/* Marker Dot */}
+                  {/* Ponto Marcador */}
                   <div className="absolute left-4 sm:left-1/2 size-4 rounded-full bg-accent border-[3px] border-primary -translate-x-1/2 top-4 z-10 shadow-[0_0_8px_rgba(148,255,71,0.5)]" />
 
-                  {/* Left/Right Card Spacer on desktop */}
+                  {/* Espaçador Desktop */}
                   <div className="hidden sm:block sm:w-1/2" />
 
-                  {/* Card Container */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  {/* Card */}
+                  <div
+                    data-timeline-card
                     className="w-full sm:w-[45%] pl-10 sm:pl-0 flex flex-col"
                   >
                     <div
                       className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-6 sm:p-8 rounded-[24px] flex-1 flex flex-col justify-between hover:border-border transition-colors duration-300"
                     >
                       <div>
-                        {/* Period & Company */}
+                        {/* Período & Empresa */}
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                           <span className="font-sans font-semibold text-accent text-sm tracking-wide">
                             {item.date}
@@ -117,12 +146,12 @@ export default function LinhaDoTempo({
                           </span>
                         </div>
 
-                        {/* Title */}
+                        {/* Título */}
                         <h3 className="font-sans font-semibold text-text-primary text-xl mb-3">
                           {item.title}
                         </h3>
 
-                        {/* Description */}
+                        {/* Descrição */}
                         <p className="font-sans text-text-secondary text-sm leading-relaxed mb-6">
                           {item.description}
                         </p>
@@ -140,7 +169,7 @@ export default function LinhaDoTempo({
                         ))}
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               );
             })}

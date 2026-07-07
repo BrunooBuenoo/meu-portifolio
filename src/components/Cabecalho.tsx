@@ -37,7 +37,7 @@ export default function Cabecalho({ name = "Bueno" }: CabecalhoProps) {
               <circle cx="10" cy="10" r="2.5" fill="var(--primary)" className="transition-colors duration-300" />
             </svg>
           </div>
-          <span className="font-sans font-semibold text-text-primary text-xl tracking-tight uppercase">
+          <span className="font-sans font-semibold text-text-primary text-lg tracking-tight uppercase">
             {name.toLowerCase()}
             <span className="text-accent font-black">.</span>
           </span>

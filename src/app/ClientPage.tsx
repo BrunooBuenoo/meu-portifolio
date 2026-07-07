@@ -645,14 +645,14 @@ export default function ClientPage({
       <main ref={mainRef} className="flex-grow pt-20">
         
         {/* 1. HERO SECTION */}
-        <section ref={heroSectionRef} className="relative min-h-[90vh] lg:h-[calc(100vh-80px)] flex items-center px-6 sm:px-10 overflow-x-hidden overflow-y-hidden pt-20 pb-10">
+        <section ref={heroSectionRef} className="relative min-h-[105vh] sm:min-h-[90vh] lg:h-[calc(100vh-80px)] flex items-start lg:items-center px-6 sm:px-10 overflow-x-hidden overflow-y-hidden pt-8 sm:pt-12 lg:pt-20 pb-10">
           {/* Radial Dynamic Glow */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="hero-glow w-full h-[700px] absolute top-[-100px] left-1/2 -translate-x-1/2" style={getGlowStyle()} />
           </div>
 
           {/* Imagem de Fundo da Hero com overlay de simulacao na tela do notebook */}
-          <div ref={heroImageRef} className="absolute right-0 bottom-0 w-full h-[55%] lg:h-full lg:w-[70%] z-0 pointer-events-none flex items-end justify-end opacity-20 lg:opacity-100 transition-opacity">
+          <div ref={heroImageRef} className="absolute right-0 bottom-14 sm:bottom-8 lg:bottom-0 w-full h-[62%] lg:h-full lg:w-[70%] z-0 pointer-events-none flex items-end justify-end opacity-100">
             <div className="relative w-full h-auto max-h-[45vh] lg:max-h-[85vh]">
               <img
                 src="/images/hero-n.png"
@@ -669,7 +669,7 @@ export default function ClientPage({
                 ref={(el) => {
                   heroMainContentRefs.current[0] = el;
                 }}
-                className="font-sans font-bold text-text-primary text-5xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight"
+                className="font-sans font-bold text-text-primary text-3xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight"
               >
                 <span
                   contentEditable={isEditable}

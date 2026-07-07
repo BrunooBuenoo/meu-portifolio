@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsapConfig";
 import { Check } from "lucide-react";
 
 interface CasoRealProps {
@@ -16,20 +17,55 @@ interface CasoRealProps {
 }
 
 export default function CasoReal({ data }: CasoRealProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current || !data) return;
+
+      const leftCol = sectionRef.current.querySelector<HTMLElement>("[data-case-left]");
+      const rightCol = sectionRef.current.querySelector<HTMLElement>("[data-case-right]");
+
+      if (!leftCol || !rightCol) return;
+
+      gsap.set(leftCol, { opacity: 0, x: -50 });
+      gsap.set(rightCol, { opacity: 0, x: 50 });
+
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 78%",
+        once: true,
+        onEnter: () => {
+          gsap.to(leftCol, {
+            opacity: 1,
+            x: 0,
+            duration: 0.65,
+            ease: "power3.out",
+          });
+          gsap.to(rightCol, {
+            opacity: 1,
+            x: 0,
+            duration: 0.65,
+            delay: 0.15,
+            ease: "power3.out",
+          });
+        },
+      });
+    },
+    { scope: sectionRef, dependencies: [data?.title] }
+  );
+
   if (!data) return null;
 
   const highlights = data.highlights || [];
 
   return (
-    <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="caso-real">
+    <section ref={sectionRef} className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="caso-real">
       <div className="max-w-[1440px] mx-auto">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          {/* Left Column: Image with glass overlay */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
+          {/* Coluna Esquerda: Imagem com overlay glass */}
+          <div
+            data-case-left
             className="flex-1 w-full relative group"
           >
             <div className="absolute inset-0 bg-accent/10 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -45,14 +81,11 @@ export default function CasoReal({ data }: CasoRealProps) {
                 <h4 className="font-sans font-bold text-text-primary text-base">{data.company}</h4>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right Column: Content */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
+          {/* Coluna Direita: Conteúdo */}
+          <div
+            data-case-right
             className="flex-1 flex flex-col justify-center gap-6 items-start"
           >
             <span className="font-sans text-accent text-sm font-semibold uppercase tracking-widest">{data.subtitle}</span>
@@ -74,15 +107,13 @@ export default function CasoReal({ data }: CasoRealProps) {
               ))}
             </ul>
 
-            <motion.a
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+            <a
               href="#contato"
-              className="bg-text-primary text-primary font-sans font-semibold text-base px-8 py-3 rounded-full hover:opacity-90 transition-all cursor-pointer mt-2"
+              className="bg-text-primary text-primary font-sans font-semibold text-base px-8 py-3 rounded-full hover:opacity-90 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer mt-2"
             >
               {data.buttonText}
-            </motion.a>
-          </motion.div>
+            </a>
+          </div>
         </div>
       </div>
     </section>

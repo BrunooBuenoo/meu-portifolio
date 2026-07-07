@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useInView } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { gsap } from "@/lib/gsapConfig";
 
 interface StatItem {
   icon?: string;
@@ -17,34 +17,36 @@ interface ContadorEstatisticasProps {
 function AnimatedNumber({ value }: { value: number }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
-    if (!isInView) return;
-    
-    let start = 0;
-    const end = value;
-    if (start === end) {
-      setCount(end);
-      return;
-    }
+    const el = ref.current;
+    if (!el || hasAnimated.current) return;
 
-    const duration = 1500; // 1.5s
-    const stepTime = Math.max(Math.floor(duration / end), 15);
-    const stepValue = Math.ceil(end / (duration / stepTime));
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || hasAnimated.current) return;
+        hasAnimated.current = true;
+        observer.disconnect();
 
-    const timer = setInterval(() => {
-      start += stepValue;
-      if (start >= end) {
-        setCount(end);
-        clearInterval(timer);
-      } else {
-        setCount(start);
-      }
-    }, stepTime);
+        // Usa GSAP para animação a 60fps ao invés de setInterval discreto
+        const proxy = { val: 0 };
+        gsap.to(proxy, {
+          val: value,
+          duration: 1.5,
+          ease: "power2.out",
+          onUpdate: () => {
+            setCount(Math.round(proxy.val));
+          },
+        });
+      },
+      { threshold: 0.2 }
+    );
 
-    return () => clearInterval(timer);
-  }, [value, isInView]);
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, [value]);
 
   return <span ref={ref}>{count}</span>;
 }

@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef } from "react";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsapConfig";
 import { Award, GraduationCap } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface EducationItem {
   id?: string;
@@ -34,6 +35,60 @@ export default function Certificacoes({
   getEditableText,
   onUpdateText
 }: CertificacoesProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return;
+
+      const eduCards = gsap.utils.toArray<HTMLElement>("[data-edu-card]", sectionRef.current);
+      const certCards = gsap.utils.toArray<HTMLElement>("[data-cert-card]", sectionRef.current);
+
+      // Educação: desliza da esquerda
+      if (eduCards.length > 0) {
+        gsap.set(eduCards, { opacity: 0, x: -30 });
+        eduCards.forEach((card, idx) => {
+          ScrollTrigger.create({
+            trigger: card,
+            start: "top 88%",
+            once: true,
+            onEnter: () => {
+              gsap.to(card, {
+                opacity: 1,
+                x: 0,
+                duration: 0.5,
+                delay: idx * 0.08,
+                ease: "power3.out",
+              });
+            },
+          });
+        });
+      }
+
+      // Certificações: desliza da direita
+      if (certCards.length > 0) {
+        gsap.set(certCards, { opacity: 0, x: 30 });
+        certCards.forEach((card, idx) => {
+          ScrollTrigger.create({
+            trigger: card,
+            start: "top 88%",
+            once: true,
+            onEnter: () => {
+              gsap.to(card, {
+                opacity: 1,
+                x: 0,
+                duration: 0.5,
+                delay: idx * 0.08,
+                ease: "power3.out",
+              });
+            },
+          });
+        });
+      }
+    },
+    { scope: sectionRef, dependencies: [education.length, certifications.length] }
+  );
+
   const readText = (key: string, fallback: string) => {
     return getEditableText ? getEditableText(key, fallback) : fallback;
   };
@@ -44,7 +99,7 @@ export default function Certificacoes({
   };
 
   return (
-    <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="certificacoes">
+    <section ref={sectionRef} className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="certificacoes">
       <div className="max-w-[1440px] mx-auto">
         <div className="text-center mb-16">
           <span
@@ -83,7 +138,7 @@ export default function Certificacoes({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Academic Column */}
+          {/* Coluna Acadêmica */}
           <div>
             <div className="flex items-center gap-3 mb-8">
               <div className="p-2.5 bg-accent/15 rounded-xl text-accent">
@@ -103,12 +158,9 @@ export default function Certificacoes({
             
             <div className="flex flex-col gap-6">
               {education.map((edu, idx) => (
-                <motion.div
+                <div
                   key={edu.id || idx}
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  data-edu-card
                   className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-6 sm:p-8 rounded-[24px]"
                 >
                   <div className="flex justify-between items-start gap-4 mb-3">
@@ -119,12 +171,12 @@ export default function Certificacoes({
                     <span className="font-sans text-text-muted text-sm shrink-0 font-medium">{edu.date}</span>
                   </div>
                   <p className="font-sans text-text-secondary text-sm leading-relaxed">{edu.description}</p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Certifications Column */}
+          {/* Coluna de Certificações */}
           <div>
             <div className="flex items-center gap-3 mb-8">
               <div className="p-2.5 bg-accent/15 rounded-xl text-accent">
@@ -144,12 +196,9 @@ export default function Certificacoes({
 
             <div className="flex flex-col gap-6">
               {certifications.map((cert, idx) => (
-                <motion.div
+                <div
                   key={cert.id || idx}
-                  initial={{ opacity: 0, x: 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  data-cert-card
                   className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-6 sm:p-8 rounded-[24px] hover:border-border transition-colors duration-300"
                 >
                   <div className="flex justify-between items-start gap-4 mb-2">
@@ -160,7 +209,7 @@ export default function Certificacoes({
                   <span className="font-sans text-text-muted text-xs font-mono">
                     {readText("credentialIdLabel", "ID Credencial")}: {cert.credentialId}
                   </span>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>

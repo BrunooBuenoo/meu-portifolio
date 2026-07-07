@@ -1,7 +1,6 @@
 "use client";
 
 import { FileText } from "lucide-react";
-import { motion } from "framer-motion";
 
 const Linkedin = ({ size = 20, className = "" }: { size?: number; className?: string }) => (
   <svg
@@ -73,19 +72,16 @@ export default function LinksProfissionais({
   return (
     <div className="flex flex-wrap items-center justify-center gap-4 py-8 max-w-xl mx-auto">
       {links.map((link, idx) => (
-        <motion.a
+        <a
           key={idx}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
           href={link.href}
           target={link.href !== "#" ? "_blank" : undefined}
           rel={link.href !== "#" ? "noopener noreferrer" : undefined}
-          className={`flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full font-sans text-sm font-semibold text-text-primary transition-all cursor-pointer ${link.colorClass}`}
-          style={{ transition: "background-color 0.25s, color 0.25s, border-color 0.25s" }}
+          className={`flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full font-sans text-sm font-semibold text-text-primary transition-all duration-250 cursor-pointer hover:scale-105 hover:-translate-y-0.5 active:scale-95 ${link.colorClass}`}
         >
           {link.icon}
           <span>{link.label}</span>
-        </motion.a>
+        </a>
       ))}
     </div>
   );
