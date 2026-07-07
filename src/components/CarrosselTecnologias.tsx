@@ -107,7 +107,7 @@ export default function CarrosselTecnologias({
       const viewportTrackWidth = sectionEl.clientWidth;
       const topMaxShift = Math.max(0, topRowEl.scrollWidth - viewportTrackWidth);
       const bottomMaxShift = Math.max(0, bottomRowEl.scrollWidth - viewportTrackWidth);
-      const movementFactor = 0.2;
+      const movementFactor = 0.15;
       const topTravel = topMaxShift * movementFactor;
       const bottomTravel = bottomMaxShift * movementFactor;
 
