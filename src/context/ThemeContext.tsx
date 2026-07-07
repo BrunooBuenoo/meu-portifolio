@@ -15,6 +15,9 @@ interface ThemeContextProps {
 
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
+const SHARED_ACCENT = "#94ff47";
+const SHARED_ACCENT_HOVER = "#a8ff6b";
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark"); // Default to premium dark theme
   const [colors, setColors] = useState<any>(null);
@@ -70,8 +73,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--text-primary", themeColors.textPrimary);
       root.style.setProperty("--text-secondary", themeColors.textSecondary);
       root.style.setProperty("--text-muted", themeColors.textMuted);
-      root.style.setProperty("--accent", themeColors.accent);
-      root.style.setProperty("--accent-hover", themeColors.accentHover);
+      root.style.setProperty("--accent", SHARED_ACCENT);
+      root.style.setProperty("--accent-hover", SHARED_ACCENT_HOVER);
       root.style.setProperty("--border", themeColors.border);
     } else {
       // Fallback defaults
@@ -82,8 +85,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         root.style.setProperty("--text-primary", "#ffffff");
         root.style.setProperty("--text-secondary", "rgba(255,255,255,0.7)");
         root.style.setProperty("--text-muted", "rgba(255,255,255,0.4)");
-        root.style.setProperty("--accent", "#94ff47");
-        root.style.setProperty("--accent-hover", "#a8ff6b");
+        root.style.setProperty("--accent", SHARED_ACCENT);
+        root.style.setProperty("--accent-hover", SHARED_ACCENT_HOVER);
         root.style.setProperty("--border", "#27272a");
       } else {
         root.style.setProperty("--primary", "#ffffff");
@@ -92,8 +95,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         root.style.setProperty("--text-primary", "#09090b");
         root.style.setProperty("--text-secondary", "#52525b");
         root.style.setProperty("--text-muted", "#71717a");
-        root.style.setProperty("--accent", "#09090b");
-        root.style.setProperty("--accent-hover", "rgba(9,9,11,0.85)");
+        root.style.setProperty("--accent", SHARED_ACCENT);
+        root.style.setProperty("--accent-hover", SHARED_ACCENT_HOVER);
         root.style.setProperty("--border", "#e4e4e7");
       }
     }

@@ -4,7 +4,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Phone, MapPin, X, ArrowUpRight, ExternalLink, Send } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { useTheme } from "@/context/ThemeContext";
+
+gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
 const GithubIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
   <svg
@@ -287,13 +293,13 @@ function Typewriter({
         const typedChar = currentText[currentText.length - 1] || "";
         if (typedChar === " " && keyboardSpaceSampleRef.current) {
           const spaceClick = keyboardSpaceSampleRef.current.cloneNode(true) as HTMLAudioElement;
-          spaceClick.volume = 0.2;
+          spaceClick.volume = 0.09;
           spaceClick.playbackRate = 1;
           spaceClick.play().catch(() => undefined);
         } else if (keyboardSamplesRef.current.length > 0) {
           const sampleIndex = Math.floor(Math.random() * keyboardSamplesRef.current.length);
           const click = keyboardSamplesRef.current[sampleIndex].cloneNode(true) as HTMLAudioElement;
-          click.volume = 0.18;
+          click.volume = 0.03;
           click.playbackRate = 1;
           click.play().catch(() => undefined);
         }
@@ -385,6 +391,11 @@ export default function ClientPage({
   onUpdateHero
 }: ClientPageProps) {
   const { theme } = useTheme();
+  const mainRef = useRef<HTMLElement | null>(null);
+  const heroSectionRef = useRef<HTMLElement | null>(null);
+  const heroMainContentRefs = useRef<(HTMLElement | null)[]>([]);
+  const heroButtonsRef = useRef<HTMLDivElement | null>(null);
+  const heroImageRef = useRef<HTMLDivElement | null>(null);
 
   const editableTexts = siteSettings?.editableTexts || {};
 
@@ -466,39 +477,147 @@ export default function ClientPage({
     };
   };
 
-  const sectionReveal = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.14,
-      },
-    },
-  };
+  useGSAP(
+    () => {
+      const mainContentEls = heroMainContentRefs.current.filter(Boolean) as HTMLElement[];
+      const heroButtons = heroButtonsRef.current
+        ? (Array.from(heroButtonsRef.current.querySelectorAll("a")) as HTMLElement[])
+        : [];
+      const heroImageEl = heroImageRef.current;
 
-  const sectionItem = {
-    hidden: { opacity: 0, y: 24 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: "easeOut" as const },
+      if (mainContentEls.length === 0 || heroButtons.length === 0 || !heroImageEl) {
+        return;
+      }
+
+      gsap.set(mainContentEls, { opacity: 0, y: 24 });
+      gsap.set(heroButtons, { opacity: 0, y: 16 });
+      gsap.set(heroImageEl, { x: "110vw" });
+
+      const tl = gsap.timeline({ defaults: { overwrite: "auto" } });
+
+      tl.to(mainContentEls, {
+        opacity: 1,
+        y: 0,
+        duration: 0.55,
+        stagger: 0.16,
+        ease: "power3.out",
+      })
+        .to(heroButtons, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: "power3.out",
+        })
+        .to(heroImageEl, {
+          x: 0,
+          duration: 1.4,
+          ease: "power4.out",
+        });
+
+      return () => {
+        tl.kill();
+      };
     },
-  };
+    {
+      scope: heroSectionRef,
+      dependencies: [siteSettings?.linkedin, siteSettings?.github],
+    }
+  );
+
+  useGSAP(
+    () => {
+      const main = mainRef.current;
+      if (!main) return;
+
+      const sections = gsap.utils.toArray<HTMLElement>("section", main);
+      const animations: gsap.core.Timeline[] = [];
+      const triggers: ScrollTrigger[] = [];
+
+      for (const sectionEl of sections) {
+        if (sectionEl === heroSectionRef.current) {
+          continue;
+        }
+
+        const explicitItems = Array.from(sectionEl.querySelectorAll<HTMLElement>("[data-gsap-item]"));
+        const projectCards = sectionEl.id === "projetos"
+          ? Array.from(sectionEl.querySelectorAll<HTMLElement>("[data-gsap-project-card]"))
+          : [];
+        let items = explicitItems;
+
+        if (projectCards.length > 0) {
+          items = [...explicitItems, ...projectCards];
+        }
+
+        if (items.length === 0) {
+          const firstLevelItems = Array.from(sectionEl.children) as HTMLElement[];
+          items = firstLevelItems.filter((el) => el.offsetParent !== null);
+        }
+
+        if (items.length <= 1) {
+          const nestedItems = Array.from(sectionEl.querySelectorAll<HTMLElement>(":scope > div > *"));
+          const visibleNestedItems = nestedItems.filter((el) => el.offsetParent !== null);
+          if (visibleNestedItems.length > 1) {
+            items = visibleNestedItems;
+          }
+        }
+
+        if (items.length === 0) {
+          continue;
+        }
+
+        gsap.set(items, { opacity: 0, y: 22 });
+
+        const timeline = gsap.timeline({ paused: true });
+
+        for (const item of items) {
+          timeline.to(item, {
+            opacity: 1,
+            y: 0,
+            duration: 0.58,
+            ease: "power3.out",
+          });
+        }
+
+        const trigger = ScrollTrigger.create({
+          trigger: sectionEl,
+          start: "top 78%",
+          once: true,
+          onEnter: () => timeline.play(),
+        });
+
+        animations.push(timeline);
+        triggers.push(trigger);
+      }
+
+      return () => {
+        for (const timeline of animations) {
+          timeline.kill();
+        }
+        for (const trigger of triggers) {
+          trigger.kill();
+        }
+      };
+    },
+    { scope: mainRef, dependencies: [projFilter, filteredProjects.length] }
+  );
 
   return (
     <div className="relative min-h-screen bg-primary transition-colors flex flex-col font-sans">
+
       <Cabecalho name={siteSettings?.name || ""} />
 
-      <main className="flex-grow pt-20">
+      <main ref={mainRef} className="flex-grow pt-20">
         
         {/* 1. HERO SECTION */}
-        <section className="relative min-h-[90vh] lg:h-[calc(100vh-80px)] flex items-center px-6 sm:px-10 overflow-hidden pt-20 pb-10">
+        <section ref={heroSectionRef} className="relative min-h-[90vh] lg:h-[calc(100vh-80px)] flex items-center px-6 sm:px-10 overflow-x-hidden overflow-y-hidden pt-20 pb-10">
           {/* Radial Dynamic Glow */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="hero-glow w-full h-[700px] absolute top-[-100px] left-1/2 -translate-x-1/2" style={getGlowStyle()} />
           </div>
 
           {/* Imagem de Fundo da Hero com overlay de simulacao na tela do notebook */}
-          <div className="absolute right-0 bottom-0 w-full h-[55%] lg:h-full lg:w-[70%] z-0 pointer-events-none flex items-end justify-end opacity-20 lg:opacity-100 transition-opacity">
+          <div ref={heroImageRef} className="absolute right-0 bottom-0 w-full h-[55%] lg:h-full lg:w-[70%] z-0 pointer-events-none flex items-end justify-end opacity-20 lg:opacity-100 transition-opacity">
             <div className="relative w-full h-auto max-h-[45vh] lg:max-h-[85vh]">
               <img
                 src="/images/hero-n.png"
@@ -508,17 +627,13 @@ export default function ClientPage({
             </div>
           </div>
 
-          <motion.div
-            className="max-w-[1440px] mx-auto w-full z-10 relative"
-            variants={sectionReveal}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.25 }}
-          >
+          <div className="max-w-[1440px] mx-auto w-full z-10 relative">
             {/* Bloco 1: Textos e Botões (Esquerda) */}
             <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-5xl">
-              <motion.h1
-                variants={sectionItem}
+              <h1
+                ref={(el) => {
+                  heroMainContentRefs.current[0] = el;
+                }}
                 className="font-sans font-bold text-text-primary text-5xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight"
               >
                 <span
@@ -558,10 +673,12 @@ export default function ClientPage({
                     pauseEnd={heroSettings?.pauseEnd || 2000}
                   />
                 )}
-              </motion.h1>
+              </h1>
 
-              <motion.p
-                variants={sectionItem}
+              <p
+                ref={(el) => {
+                  heroMainContentRefs.current[1] = el;
+                }}
                 className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px]"
               >
                 <span
@@ -578,9 +695,9 @@ export default function ClientPage({
                 >
                   {(siteSettings?.about)}
                 </span>
-              </motion.p>
+              </p>
 
-              <motion.div variants={sectionItem} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
+              <div ref={heroButtonsRef} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
                 <a
                   href="#projetos"
                   className="bg-accent text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full hover:opacity-90 transition-all cursor-pointer shadow-[0_0_15px_rgba(148,255,71,0.2)]"
@@ -630,9 +747,9 @@ export default function ClientPage({
                     </span>
                   </a>
                 )}
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* 2. STATS SECTION */}
@@ -641,16 +758,10 @@ export default function ClientPage({
         {/* 3. SOBRE MIM SECTION */}
         {sectionsSettings?.sobreMim !== false && (
           <section className="bg-primary py-24 px-6 sm:px-10 transition-colors" id="sobre-mim">
-            <motion.div
-              className="max-w-[1440px] mx-auto"
-              variants={sectionReveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-            >
+            <div className="max-w-[1440px] mx-auto">
               <div className="flex flex-col lg:flex-row items-stretch gap-12 lg:gap-16">
                 {/* Left Bio Column */}
-                <motion.div variants={sectionItem} className="flex-1 flex flex-col justify-between gap-6">
+                <div data-gsap-item className="flex-1 flex flex-col justify-between gap-6">
                   <div>
                     <span
                       contentEditable={isEditable}
@@ -718,10 +829,10 @@ export default function ClientPage({
                       </span>
                     </p>
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Right Skills Progress Column */}
-                <motion.div variants={sectionItem} className="flex-1">
+                <div data-gsap-item className="flex-1">
                   <div className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-8 sm:p-10 rounded-[32px] h-full flex flex-col justify-center">
                     <h3 className="font-sans font-bold text-text-primary text-2xl mb-8">
                       <span
@@ -755,9 +866,9 @@ export default function ClientPage({
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </div>
-            </motion.div>
+            </div>
           </section>
         )}
 
@@ -774,15 +885,9 @@ export default function ClientPage({
         {/* 5. PROJETOS EM DESTAQUE */}
         {sectionsSettings?.projetos !== false && (
           <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="projetos">
-            <motion.div
-              className="max-w-[1440px] mx-auto"
-              variants={sectionReveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.15 }}
-            >
+            <div className="max-w-[1440px] mx-auto">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
-                <motion.div variants={sectionItem}>
+                <div data-gsap-item>
                   <span
                     contentEditable={isEditable}
                     suppressContentEditableWarning
@@ -803,10 +908,10 @@ export default function ClientPage({
                       {getEditableText("projectsTitle", "Projetos Recentes")}
                     </span>
                   </h2>
-                </motion.div>
+                </div>
 
                 {/* Pill filter selector */}
-                <motion.div variants={sectionItem} className="bg-secondary/50 border border-border/20 p-1.5 rounded-full flex gap-1 self-start sm:self-auto">
+                <div data-gsap-item className="bg-secondary/50 border border-border/20 p-1.5 rounded-full flex gap-1 self-start sm:self-auto">
                   <button
                     onClick={() => setProjFilter("destaques")}
                     className={`px-5 py-2 rounded-full font-sans text-sm font-semibold transition-all cursor-pointer ${
@@ -841,23 +946,17 @@ export default function ClientPage({
                       {getEditableText("projectsFilterAll", "Todos")}
                     </span>
                   </button>
-                </motion.div>
+                </div>
               </div>
 
               {/* Projects Grid */}
-              <motion.div
-                layout
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              >
+              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <AnimatePresence mode="popLayout">
                   {filteredProjects.map((project) => (
                     <motion.div
                       layout
+                      data-gsap-project-card
                       key={project.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.3 }}
                       onClick={() => setSelectedProject(project)}
                       className="bg-secondary/30 backdrop-blur-sm border border-border/20 rounded-[32px] overflow-hidden group hover:border-border cursor-pointer transition-all flex flex-col justify-between"
                     >
@@ -907,7 +1006,7 @@ export default function ClientPage({
                   ))}
                 </AnimatePresence>
               </motion.div>
-            </motion.div>
+            </div>
           </section>
         )}
 
@@ -944,16 +1043,10 @@ export default function ClientPage({
         {/* 11. CONTATO (FORM + CONTACT DETAILS) */}
         {sectionsSettings?.contato !== false && (
           <section className="bg-primary py-24 px-6 sm:px-10 border-t border-border/40 transition-colors" id="contato">
-          <motion.div
-            className="max-w-[1440px] mx-auto"
-            variants={sectionReveal}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-          >
+          <div className="max-w-[1440px] mx-auto">
             <div className="flex flex-col lg:flex-row items-stretch gap-12 lg:gap-16">
               {/* Left Contact Info Column */}
-              <motion.div variants={sectionItem} className="flex-1 flex flex-col justify-between gap-6">
+              <div data-gsap-item className="flex-1 flex flex-col justify-between gap-6">
                 <div>
                   <span
                     contentEditable={isEditable}
@@ -1062,10 +1155,10 @@ export default function ClientPage({
                   githubUrl={siteSettings?.github || ""}
                   cvUrl="#"
                 />
-              </motion.div>
+              </div>
 
               {/* Right Contact Form Column */}
-              <motion.div variants={sectionItem} className="flex-1">
+              <div data-gsap-item className="flex-1">
                 <div className="bg-secondary/30 backdrop-blur-sm border border-border/20 p-8 sm:p-10 rounded-[32px] h-full">
                   <h3 className="font-sans font-bold text-text-primary text-2xl mb-8">
                     <span
@@ -1195,9 +1288,9 @@ export default function ClientPage({
                     </AnimatePresence>
                   </form>
                 </div>
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </section>
       )}
 
