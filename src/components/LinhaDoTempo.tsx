@@ -51,6 +51,45 @@ export default function LinhaDoTempo({
           },
         });
       });
+
+      // Animação da Linha Central
+      const activeLine = sectionRef.current.querySelector("[data-timeline-line]");
+      if (activeLine) {
+        gsap.fromTo(
+          activeLine,
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 45%",
+              end: "bottom 70%",
+              scrub: true,
+            },
+          }
+        );
+      }
+
+      // Animação dos Pontos Marcadores (surgem de forma elástica quando a rolagem passa por eles)
+      const markers = gsap.utils.toArray<HTMLElement>("[data-timeline-marker]", sectionRef.current);
+      markers.forEach((marker) => {
+        gsap.set(marker, { scale: 0, opacity: 0 });
+
+        ScrollTrigger.create({
+          trigger: marker,
+          start: "top 72%",
+          once: true,
+          onEnter: () => {
+            gsap.to(marker, {
+              scale: 1,
+              opacity: 1,
+              duration: 0.5,
+              ease: "back.out(1.8)",
+            });
+          },
+        });
+      });
     },
     { scope: sectionRef, dependencies: [timeline.length] }
   );
@@ -107,8 +146,13 @@ export default function LinhaDoTempo({
 
         {/* Estrutura Vertical da Timeline */}
         <div className="relative">
-          {/* Linha Central */}
-          <div className="absolute left-4 sm:left-1/2 top-2 bottom-2 w-[1.5px] bg-border/40 -translate-x-1/2" />
+          {/* Linha Central de Fundo */}
+          <div className="absolute left-4 sm:left-1/2 top-2 bottom-2 w-[1.5px] bg-border/20 -translate-x-1/2" />
+          {/* Linha Central Ativa */}
+          <div
+            data-timeline-line
+            className="absolute left-4 sm:left-1/2 top-2 bottom-2 w-[1.5px] bg-accent -translate-x-1/2 origin-top scale-y-0"
+          />
 
           <div className="flex flex-col gap-12">
             {timeline.map((item, idx) => {
@@ -122,7 +166,10 @@ export default function LinhaDoTempo({
                   } relative items-stretch`}
                 >
                   {/* Ponto Marcador */}
-                  <div className="absolute left-4 sm:left-1/2 size-4 rounded-full bg-accent border-[3px] border-primary -translate-x-1/2 top-4 z-10 shadow-[0_0_8px_rgba(148,255,71,0.5)]" />
+                  <div
+                    data-timeline-marker
+                    className="absolute left-4 sm:left-1/2 size-4 rounded-full bg-accent border-[3px] border-primary -translate-x-1/2 top-4 z-10 shadow-[0_0_8px_rgba(148,255,71,0.5)]"
+                  />
 
                   {/* Espaçador Desktop */}
                   <div className="hidden sm:block sm:w-1/2" />

@@ -22,7 +22,6 @@ export default function CarrosselTecnologias({
   getEditableText,
   onUpdateText
 }: CarrosselTecnologiasProps) {
-  const [activeCategory, setActiveCategory] = useState("Todos");
   const [viewportWidth, setViewportWidth] = useState(1920);
   const sectionRef = useRef<HTMLElement | null>(null);
   const topRowRef = useRef<HTMLDivElement | null>(null);
@@ -41,21 +40,8 @@ export default function CarrosselTecnologias({
     };
   }, []);
 
-  // Extrair categorias exclusivas
-  const categories = useMemo(() => {
-    const list = new Set<string>();
-    list.add("Todos");
-    technologies.forEach((tech) => {
-      if (tech.category) list.add(tech.category);
-    });
-    return Array.from(list);
-  }, [technologies]);
-
   // Filtrar itens
-  const filteredTechs = useMemo(() => {
-    if (activeCategory === "Todos") return technologies;
-    return technologies.filter((tech) => tech.category === activeCategory);
-  }, [technologies, activeCategory]);
+  const filteredTechs = technologies;
 
   const [topBaseTechs, bottomBaseTechs] = useMemo(() => {
     const top = filteredTechs.filter((_, idx) => idx % 2 === 0);
@@ -129,7 +115,7 @@ export default function CarrosselTecnologias({
     },
     {
       scope: sectionRef,
-      dependencies: [activeCategory, duplicatedTopTechs.length, duplicatedBottomTechs.length],
+      dependencies: [duplicatedTopTechs.length, duplicatedBottomTechs.length],
     }
   );
 
@@ -152,6 +138,14 @@ export default function CarrosselTecnologias({
         {tech.name.substring(0, 2)}
       </div>
     );
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    e.currentTarget.style.setProperty("--mouse-x", `${x}px`);
+    e.currentTarget.style.setProperty("--mouse-y", `${y}px`);
   };
 
   if (technologies.length === 0) return null;
@@ -192,33 +186,6 @@ export default function CarrosselTecnologias({
           )}
         </p>
 
-        {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto mb-8">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-full font-sans text-sm font-semibold border transition-all cursor-pointer ${
-                activeCategory === cat
-                  ? "bg-accent border-accent text-primary"
-                  : "bg-transparent border-border/40 text-text-secondary hover:text-text-primary hover:border-border"
-              }`}
-            >
-              {cat === "Todos" ? (
-                <span
-                  contentEditable={isEditable}
-                  suppressContentEditableWarning
-                  onBlur={(e) => saveText("techFilterAllLabel", e.currentTarget.textContent || "")}
-                  className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
-                >
-                  {readText("techFilterAllLabel", "Todos")}
-                </span>
-              ) : (
-                cat
-              )}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Scroll-Synced Rows */}
@@ -232,12 +199,22 @@ export default function CarrosselTecnologias({
             {duplicatedTopTechs.map((tech, idx) => (
               <div
                 key={`top-${tech.name}-${idx}`}
-                className="flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full select-none"
+                onMouseMove={handleMouseMove}
+                className="group/tech-card relative overflow-hidden flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full select-none"
               >
-                {renderTechIcon(tech)}
-                <span className="font-sans font-medium text-text-primary text-base whitespace-nowrap">
-                  {tech.name}
-                </span>
+                {/* Glow Radial que segue o mouse */}
+                <div
+                  className="pointer-events-none absolute -inset-px rounded-full opacity-0 group-hover/tech-card:opacity-100 transition-opacity duration-300 z-0"
+                  style={{
+                    background: "radial-gradient(80px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(148, 255, 71, 0.15), transparent 80%)",
+                  }}
+                />
+                <div className="relative z-10 flex items-center gap-3 w-full">
+                  {renderTechIcon(tech)}
+                  <span className="font-sans font-medium text-text-primary text-base whitespace-nowrap">
+                    {tech.name}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -246,12 +223,22 @@ export default function CarrosselTecnologias({
             {duplicatedBottomTechs.map((tech, idx) => (
               <div
                 key={`bottom-${tech.name}-${idx}`}
-                className="flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full select-none"
+                onMouseMove={handleMouseMove}
+                className="group/tech-card relative overflow-hidden flex items-center gap-3 bg-secondary/30 backdrop-blur-sm border border-border/20 px-6 py-3.5 rounded-full select-none"
               >
-                {renderTechIcon(tech)}
-                <span className="font-sans font-medium text-text-primary text-base whitespace-nowrap">
-                  {tech.name}
-                </span>
+                {/* Glow Radial que segue o mouse */}
+                <div
+                  className="pointer-events-none absolute -inset-px rounded-full opacity-0 group-hover/tech-card:opacity-100 transition-opacity duration-300 z-0"
+                  style={{
+                    background: "radial-gradient(80px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(148, 255, 71, 0.15), transparent 80%)",
+                  }}
+                />
+                <div className="relative z-10 flex items-center gap-3 w-full">
+                  {renderTechIcon(tech)}
+                  <span className="font-sans font-medium text-text-primary text-base whitespace-nowrap">
+                    {tech.name}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

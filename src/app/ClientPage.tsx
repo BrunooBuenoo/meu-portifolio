@@ -61,6 +61,8 @@ import Depoimentos from "@/components/Depoimentos";
 import Certificacoes from "@/components/Certificacoes";
 import LinksProfissionais from "@/components/LinksProfissionais";
 import BotaoFlutuante from "@/components/BotaoFlutuante";
+import BotaoMagnetico from "@/components/BotaoMagnetico";
+import CardTilt3D from "@/components/CardTilt3D";
 
 interface SiteSettings {
   name?: string;
@@ -499,7 +501,16 @@ export default function ClientPage({
         return;
       }
 
-      gsap.set(mainContentEls, { opacity: 0, y: 24 });
+      // --- Text Split Reveal: anima palavras individuais do título ---
+      const heroWords = gsap.utils.toArray<HTMLElement>("[data-hero-word]", heroSectionRef.current!);
+      const heroSubtitle = heroMainContentRefs.current[1];
+
+      if (heroWords.length > 0) {
+        gsap.set(heroWords, { y: "110%", opacity: 0 });
+      }
+      if (heroSubtitle) {
+        gsap.set(heroSubtitle, { opacity: 0, y: 24 });
+      }
       gsap.set(heroButtons, { opacity: 0, y: 16 });
       gsap.set(heroImageEl, { x: "110vw" });
 
@@ -523,20 +534,36 @@ export default function ClientPage({
 
       const tl = gsap.timeline({ defaults: { overwrite: "auto" } });
 
-      tl.to(mainContentEls, {
-        opacity: 1,
-        y: 0,
-        duration: 0.55,
-        stagger: 0.16,
-        ease: "power3.out",
-      })
-        .to(heroButtons, {
+      // 1. Palavras do título surgem de baixo com stagger rápido
+      if (heroWords.length > 0) {
+        tl.to(heroWords, {
+          y: "0%",
+          opacity: 1,
+          duration: 0.7,
+          stagger: 0.04,
+          ease: "power4.out",
+        });
+      }
+
+      // 2. Subtítulo faz fade-in suave
+      if (heroSubtitle) {
+        tl.to(heroSubtitle, {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          ease: "power3.out",
+        }, heroWords.length > 0 ? "-=0.3" : 0);
+      }
+
+      // 3. Botões aparecem com stagger
+      tl.to(heroButtons, {
           opacity: 1,
           y: 0,
           duration: 0.5,
           stagger: 0.1,
           ease: "power3.out",
-        })
+        }, "-=0.2")
+        // 4. Imagem desliza da direita
         .to(heroImageEl, {
           x: 0,
           duration: 1.4,
@@ -671,14 +698,26 @@ export default function ClientPage({
                 }}
                 className="font-sans font-bold text-text-primary text-3xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight"
               >
-                <span
-                  contentEditable={isEditable}
-                  suppressContentEditableWarning
-                  onBlur={(e) => updateEditableText("heroTitle", e.currentTarget.textContent || "")}
-                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent" : ""}
-                >
-                  {getEditableText("heroTitle", "Desenvolvendo Soluções")}
-                </span>
+                {isEditable ? (
+                  <span
+                    contentEditable={isEditable}
+                    suppressContentEditableWarning
+                    onBlur={(e) => updateEditableText("heroTitle", e.currentTarget.textContent || "")}
+                    className="outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent"
+                  >
+                    {getEditableText("heroTitle", "Desenvolvendo Soluções")}
+                  </span>
+                ) : (
+                  <span className="inline">
+                    {getEditableText("heroTitle", "Desenvolvendo Soluções").split(" ").map((word, i, arr) => (
+                      <span key={i} className="overflow-hidden inline-block">
+                        <span data-hero-word className="inline-block">
+                          {word}{i < arr.length - 1 ? "\u00A0" : ""}
+                        </span>
+                      </span>
+                    ))}
+                  </span>
+                )}
                 <br />
                 {isEditable ? (
                   <span
@@ -720,54 +759,60 @@ export default function ClientPage({
               </p>
 
               <div ref={heroButtonsRef} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
-                <a
-                  href="#projetos"
-                  className="bg-accent text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full hover:opacity-90 transition-all cursor-pointer shadow-[0_0_15px_rgba(148,255,71,0.2)]"
-                >
-                  <span
-                    contentEditable={isEditable}
-                    suppressContentEditableWarning
-                    onBlur={(e) => updateEditableText("heroProjectsButton", e.currentTarget.textContent || "")}
-                    className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
-                  >
-                    {getEditableText("heroProjectsButton", "Ver Projetos")}
-                  </span>
-                </a>
-                {siteSettings?.linkedin && (
+                <BotaoMagnetico>
                   <a
-                    href={siteSettings.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="border border-border/40 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-2"
+                    href="#projetos"
+                    className="bg-accent text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full hover:opacity-90 transition-all cursor-pointer shadow-[0_0_15px_rgba(148,255,71,0.2)]"
                   >
-                    <LinkedinIcon size={18} />
                     <span
                       contentEditable={isEditable}
                       suppressContentEditableWarning
-                      onBlur={(e) => updateEditableText("linkedinButtonLabel", e.currentTarget.textContent || "")}
+                      onBlur={(e) => updateEditableText("heroProjectsButton", e.currentTarget.textContent || "")}
                       className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
                     >
-                      {getEditableText("linkedinButtonLabel", "LinkedIn")}
+                      {getEditableText("heroProjectsButton", "Ver Projetos")}
                     </span>
                   </a>
+                </BotaoMagnetico>
+                {siteSettings?.linkedin && (
+                  <BotaoMagnetico>
+                    <a
+                      href={siteSettings.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border border-border/40 hover:bg-blue-600 hover:text-white hover:border-blue-600 text-text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-2"
+                    >
+                      <LinkedinIcon size={18} />
+                      <span
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("linkedinButtonLabel", e.currentTarget.textContent || "")}
+                        className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                      >
+                        {getEditableText("linkedinButtonLabel", "LinkedIn")}
+                      </span>
+                    </a>
+                  </BotaoMagnetico>
                 )}
                 {siteSettings?.github && (
-                  <a
-                    href={siteSettings.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="border border-border/40 hover:bg-zinc-800 dark:hover:bg-zinc-100 dark:hover:text-primary hover:text-white hover:border-zinc-800 dark:hover:border-zinc-100 text-text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-2"
-                  >
-                    <GithubIcon size={18} />
-                    <span
-                      contentEditable={isEditable}
-                      suppressContentEditableWarning
-                      onBlur={(e) => updateEditableText("githubButtonLabel", e.currentTarget.textContent || "")}
-                      className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                  <BotaoMagnetico>
+                    <a
+                      href={siteSettings.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border border-border/40 hover:bg-zinc-800 dark:hover:bg-zinc-100 dark:hover:text-primary hover:text-white hover:border-zinc-800 dark:hover:border-zinc-100 text-text-primary font-sans font-semibold text-base px-8 py-3.5 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-2"
                     >
-                      {getEditableText("githubButtonLabel", "GitHub")}
-                    </span>
-                  </a>
+                      <GithubIcon size={18} />
+                      <span
+                        contentEditable={isEditable}
+                        suppressContentEditableWarning
+                        onBlur={(e) => updateEditableText("githubButtonLabel", e.currentTarget.textContent || "")}
+                        className={isEditable ? "outline-dashed outline-1 outline-primary/30 px-1 py-0.5 rounded focus:outline-primary" : ""}
+                      >
+                        {getEditableText("githubButtonLabel", "GitHub")}
+                      </span>
+                    </a>
+                  </BotaoMagnetico>
                 )}
               </div>
             </div>
@@ -975,56 +1020,57 @@ export default function ClientPage({
               <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <AnimatePresence mode="popLayout">
                   {filteredProjects.map((project) => (
-                    <motion.div
-                      layout
-                      data-gsap-project-card
-                      key={project.id}
-                      onClick={() => setSelectedProject(project)}
-                      className="bg-secondary/30 backdrop-blur-sm border border-border/20 rounded-[32px] overflow-hidden group hover:border-border cursor-pointer transition-all flex flex-col justify-between"
-                    >
-                      <div>
-                        {/* Image Box */}
-                        <div className="relative aspect-[16/10] overflow-hidden bg-primary/40 border-b border-border/20">
-                          <img
-                            src={project.image}
-                            alt={project.title}
-                            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <div className="bg-accent text-primary p-3 rounded-full shadow-lg">
-                              <ArrowUpRight size={20} className="stroke-[2.5]" />
+                    <CardTilt3D key={project.id}>
+                      <motion.div
+                        layout
+                        data-gsap-project-card
+                        onClick={() => setSelectedProject(project)}
+                        className="bg-secondary/30 backdrop-blur-sm border border-border/20 rounded-[32px] overflow-hidden group hover:border-border cursor-pointer transition-all flex flex-col justify-between h-full"
+                      >
+                        <div>
+                          {/* Image Box */}
+                          <div className="relative aspect-[16/10] overflow-hidden bg-primary/40 border-b border-border/20">
+                            <img
+                              src={project.image}
+                              alt={project.title}
+                              className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <div className="bg-accent text-primary p-3 rounded-full shadow-lg">
+                                <ArrowUpRight size={20} className="stroke-[2.5]" />
+                              </div>
                             </div>
+                          </div>
+
+                          {/* Content Box */}
+                          <div className="p-6">
+                            <h3 className="font-sans font-bold text-text-primary text-xl mb-2 line-clamp-1 group-hover:text-accent transition-colors">
+                              {project.title}
+                            </h3>
+                            <p className="font-sans text-text-secondary text-sm leading-relaxed line-clamp-3 mb-6">
+                              {project.description}
+                            </p>
                           </div>
                         </div>
 
-                        {/* Content Box */}
-                        <div className="p-6">
-                          <h3 className="font-sans font-bold text-text-primary text-xl mb-2 line-clamp-1 group-hover:text-accent transition-colors">
-                            {project.title}
-                          </h3>
-                          <p className="font-sans text-text-secondary text-sm leading-relaxed line-clamp-3 mb-6">
-                            {project.description}
-                          </p>
+                        {/* Footer Tech List */}
+                        <div className="px-6 pb-6 pt-2 flex flex-wrap gap-2 mt-auto">
+                          {project.technologies.slice(0, 3).map((tech: string, tIdx: number) => (
+                            <span
+                              key={tIdx}
+                              className="bg-primary/50 border border-border/20 text-text-secondary font-sans font-semibold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                          {project.technologies.length > 3 && (
+                            <span className="text-text-muted text-xs self-center">
+                              +{project.technologies.length - 3}
+                            </span>
+                          )}
                         </div>
-                      </div>
-
-                      {/* Footer Tech List */}
-                      <div className="px-6 pb-6 pt-2 flex flex-wrap gap-2 mt-auto">
-                        {project.technologies.slice(0, 3).map((tech: string, tIdx: number) => (
-                          <span
-                            key={tIdx}
-                            className="bg-primary/50 border border-border/20 text-text-secondary font-sans font-semibold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                        {project.technologies.length > 3 && (
-                          <span className="text-text-muted text-xs self-center">
-                            +{project.technologies.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </motion.div>
+                      </motion.div>
+                    </CardTilt3D>
                   ))}
                 </AnimatePresence>
               </motion.div>
