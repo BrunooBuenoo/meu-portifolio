@@ -716,20 +716,7 @@ export default function ClientPage({
                 }}
                 className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px]"
               >
-                <span
-                  contentEditable={isEditable}
-                  suppressContentEditableWarning
-                  onBlur={(e) => {
-                    if (onUpdateSite) {
-                      const firstSentence = e.currentTarget.textContent || "";
-                      const restOfAbout = (siteSettings?.about || "").split(".").slice(1).join(".");
-                      onUpdateSite({ ...siteSettings, about: firstSentence.trim() + "." + (restOfAbout ? restOfAbout : "") });
-                    }
-                  }}
-                  className={isEditable ? "outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent" : ""}
-                >
-                  {(siteSettings?.about)}
-                </span>
+                Fique a vontade para entrar em contato comigo.
               </p>
 
               <div ref={heroButtonsRef} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
