@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { SoundProvider } from "@/context/SoundContext";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import "./globals.css";
 
@@ -32,7 +33,9 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         <ThemeProvider>
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <SoundProvider>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </SoundProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -273,15 +273,15 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
 
   const getFileIcon = (fileName: string) => {
     if (fileName.endsWith(".tsx") || fileName.endsWith(".jsx")) {
-      return <Code2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#519aba] shrink-0" />;
+      return <Code2 className="w-2 h-2 sm:w-3 sm:h-3 text-[#519aba] shrink-0" />;
     }
     if (fileName.endsWith(".css")) {
-      return <FileCode className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#42a5f5] shrink-0" />;
+      return <FileCode className="w-2 h-2 sm:w-3 sm:h-3 text-[#42a5f5] shrink-0" />;
     }
     if (fileName.endsWith(".json")) {
-      return <FileJson className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#cbcb41] shrink-0" />;
+      return <FileJson className="w-2 h-2 sm:w-3 sm:h-3 text-[#cbcb41] shrink-0" />;
     }
-    return <FileText className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#a0a0a0] shrink-0" />;
+    return <FileText className="w-2 h-2 sm:w-3 sm:h-3 text-[#a0a0a0] shrink-0" />;
   };
 
   const renderSyntaxLine = (line: string, lang: string) => {
@@ -325,16 +325,16 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
   };
 
   return (
-    <div className="w-full h-full bg-[#1e1e1e] text-[#cccccc] font-sans flex flex-col select-none overflow-hidden text-[8px] sm:text-[9.5px] leading-tight">
+    <div className="w-full h-full bg-[#1e1e1e] text-[#cccccc] font-sans flex flex-col select-none overflow-hidden text-[5.5px] xs:text-[7.5px] sm:text-[9.5px] leading-tight">
       {/* 1. TOP MENU BAR */}
-      <div className="h-4 sm:h-5 bg-[#323233] border-b border-[#252526] flex items-center px-1.5 justify-between shrink-0">
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1">
-            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff5f56] inline-block" />
-            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ffbd2e] inline-block" />
-            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#27c93f] inline-block" />
+      <div className="h-3 sm:h-5 bg-[#323233] border-b border-[#252526] flex items-center px-1 sm:px-1.5 justify-between shrink-0">
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <span className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff5f56] inline-block" />
+            <span className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ffbd2e] inline-block" />
+            <span className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-full bg-[#27c93f] inline-block" />
           </div>
-          <div className="hidden xs:flex items-center gap-2 ml-2 text-[8px] sm:text-[9px] text-[#cccccc]/80">
+          <div className="hidden xs:flex items-center gap-1.5 sm:gap-2 ml-1 sm:ml-2 text-[5.5px] xs:text-[7px] sm:text-[9px] text-[#cccccc]/80">
             <span className="hover:text-white cursor-default">File</span>
             <span className="hover:text-white cursor-default">Edit</span>
             <span className="hover:text-white cursor-default">Selection</span>
@@ -345,7 +345,7 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
           </div>
         </div>
 
-        <div className="text-[7.5px] sm:text-[9px] text-[#a0a0a0] font-mono truncate max-w-[150px] sm:max-w-[250px]">
+        <div className="text-[5.5px] xs:text-[7px] sm:text-[9px] text-[#a0a0a0] font-mono truncate max-w-[110px] sm:max-w-[250px]">
           {activeFile.name} — meu-portifolio
         </div>
       </div>
@@ -353,73 +353,73 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
       {/* MAIN CONTAINER (Activity Bar + Sidebar + Editor) */}
       <div className="flex-1 flex overflow-hidden">
         {/* 2. ACTIVITY BAR (Far Left) */}
-        <div className="w-5 sm:w-7 bg-[#333333] border-r border-[#2b2b2b] flex flex-col items-center py-1.5 justify-between shrink-0">
-          <div className="flex flex-col items-center gap-2 text-[#858585]">
+        <div className="w-4 sm:w-7 bg-[#333333] border-r border-[#2b2b2b] flex flex-col items-center py-1 sm:py-1.5 justify-between shrink-0">
+          <div className="flex flex-col items-center gap-1 sm:gap-2 text-[#858585]">
             <button className="text-white border-l-2 border-[#007acc] pl-0.5">
-              <Files className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <Files className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
             </button>
             <button className="hover:text-white transition-colors">
-              <Search className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <Search className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
             </button>
             <button className="hover:text-white transition-colors">
-              <GitBranch className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <GitBranch className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
             </button>
             <button className="hover:text-white transition-colors">
-              <Blocks className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <Blocks className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
             </button>
           </div>
           <button className="text-[#858585] hover:text-white transition-colors">
-            <Settings className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <Settings className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
 
         {/* 3. SIDEBAR / EXPLORER */}
-        <div className="w-20 sm:w-28 bg-[#252526] border-r border-[#1e1e1e] flex flex-col shrink-0 overflow-y-auto vscode-scrollbar">
-          <div className="px-1.5 py-1 text-[7px] sm:text-[8px] font-bold tracking-wider text-[#bbbbbb] uppercase border-b border-[#2d2d2d] flex items-center justify-between">
+        <div className="w-14 xs:w-20 sm:w-28 bg-[#252526] border-r border-[#1e1e1e] flex flex-col shrink-0 overflow-y-auto vscode-scrollbar">
+          <div className="px-1 sm:px-1.5 py-0.5 sm:py-1 text-[5.5px] xs:text-[7px] sm:text-[8px] font-bold tracking-wider text-[#bbbbbb] uppercase border-b border-[#2d2d2d] flex items-center justify-between">
             <span>Explorer</span>
           </div>
 
-          <div className="p-1 font-mono text-[7.5px] sm:text-[9px] text-[#cccccc] space-y-0.5">
+          <div className="p-0.5 sm:p-1 font-mono text-[5.5px] xs:text-[7.5px] sm:text-[9px] text-[#cccccc] space-y-0.5">
             {/* Folder src */}
             <div>
               <div
                 onClick={() => toggleFolder("src")}
-                className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+                className="flex items-center gap-0.5 sm:gap-1 cursor-pointer hover:bg-[#2a2d2e] px-0.5 sm:px-1 py-0.5 rounded"
               >
                 {expandedFolders["src"] ? (
-                  <ChevronDown className="w-2.5 h-2.5 text-[#858585]" />
+                  <ChevronDown className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#858585]" />
                 ) : (
-                  <ChevronRight className="w-2.5 h-2.5 text-[#858585]" />
+                  <ChevronRight className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#858585]" />
                 )}
                 {expandedFolders["src"] ? (
-                  <FolderOpen className="w-2.5 h-2.5 text-[#dcb67a]" />
+                  <FolderOpen className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#dcb67a]" />
                 ) : (
-                  <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
+                  <Folder className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#dcb67a]" />
                 )}
-                <span className="font-semibold text-white">src</span>
+                <span className="font-semibold text-white truncate">src</span>
               </div>
 
               {expandedFolders["src"] && (
-                <div className="pl-2 space-y-0.5">
+                <div className="pl-1.5 sm:pl-2 space-y-0.5">
                   {/* Folder app */}
                   <div>
                     <div
                       onClick={() => toggleFolder("app")}
-                      className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+                      className="flex items-center gap-0.5 sm:gap-1 cursor-pointer hover:bg-[#2a2d2e] px-0.5 sm:px-1 py-0.5 rounded"
                     >
                       {expandedFolders["app"] ? (
-                        <ChevronDown className="w-2 h-2 text-[#858585]" />
+                        <ChevronDown className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-[#858585]" />
                       ) : (
-                        <ChevronRight className="w-2 h-2 text-[#858585]" />
+                        <ChevronRight className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-[#858585]" />
                       )}
-                      <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
-                      <span>app</span>
+                      <Folder className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#dcb67a]" />
+                      <span className="truncate">app</span>
                     </div>
                     {expandedFolders["app"] && (
-                      <div className="pl-3">
+                      <div className="pl-2 sm:pl-3">
                         <div
                           onClick={() => openFile("page.tsx")}
-                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                          className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer px-0.5 sm:px-1 py-0.5 rounded ${
                             activeFileId === "page.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
                           }`}
                         >
@@ -434,21 +434,21 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
                   <div>
                     <div
                       onClick={() => toggleFolder("components")}
-                      className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+                      className="flex items-center gap-0.5 sm:gap-1 cursor-pointer hover:bg-[#2a2d2e] px-0.5 sm:px-1 py-0.5 rounded"
                     >
                       {expandedFolders["components"] ? (
-                        <ChevronDown className="w-2 h-2 text-[#858585]" />
+                        <ChevronDown className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-[#858585]" />
                       ) : (
-                        <ChevronRight className="w-2 h-2 text-[#858585]" />
+                        <ChevronRight className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-[#858585]" />
                       )}
-                      <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
-                      <span>components</span>
+                      <Folder className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#dcb67a]" />
+                      <span className="truncate">components</span>
                     </div>
                     {expandedFolders["components"] && (
-                      <div className="pl-3 space-y-0.5">
+                      <div className="pl-2 sm:pl-3 space-y-0.5">
                         <div
                           onClick={() => openFile("Hero.tsx")}
-                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                          className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer px-0.5 sm:px-1 py-0.5 rounded ${
                             activeFileId === "Hero.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
                           }`}
                         >
@@ -457,7 +457,7 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
                         </div>
                         <div
                           onClick={() => openFile("Projects.tsx")}
-                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                          className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer px-0.5 sm:px-1 py-0.5 rounded ${
                             activeFileId === "Projects.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
                           }`}
                         >
@@ -466,7 +466,7 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
                         </div>
                         <div
                           onClick={() => openFile("ContadorEstatisticas.tsx")}
-                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                          className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer px-0.5 sm:px-1 py-0.5 rounded ${
                             activeFileId === "ContadorEstatisticas.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
                           }`}
                         >
@@ -481,21 +481,21 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
                   <div>
                     <div
                       onClick={() => toggleFolder("styles")}
-                      className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+                      className="flex items-center gap-0.5 sm:gap-1 cursor-pointer hover:bg-[#2a2d2e] px-0.5 sm:px-1 py-0.5 rounded"
                     >
                       {expandedFolders["styles"] ? (
-                        <ChevronDown className="w-2 h-2 text-[#858585]" />
+                        <ChevronDown className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-[#858585]" />
                       ) : (
-                        <ChevronRight className="w-2 h-2 text-[#858585]" />
+                        <ChevronRight className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-[#858585]" />
                       )}
-                      <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
-                      <span>styles</span>
+                      <Folder className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#dcb67a]" />
+                      <span className="truncate">styles</span>
                     </div>
                     {expandedFolders["styles"] && (
-                      <div className="pl-3">
+                      <div className="pl-2 sm:pl-3">
                         <div
                           onClick={() => openFile("globals.css")}
-                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                          className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer px-0.5 sm:px-1 py-0.5 rounded ${
                             activeFileId === "globals.css" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
                           }`}
                         >
@@ -512,7 +512,7 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
             {/* package.json */}
             <div
               onClick={() => openFile("package.json")}
-              className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+              className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer px-0.5 sm:px-1 py-0.5 rounded ${
                 activeFileId === "package.json" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
               }`}
             >
@@ -523,7 +523,7 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
             {/* README.md */}
             <div
               onClick={() => openFile("README.md")}
-              className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+              className={`flex items-center gap-0.5 sm:gap-1 cursor-pointer px-0.5 sm:px-1 py-0.5 rounded ${
                 activeFileId === "README.md" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
               }`}
             >
@@ -536,7 +536,7 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
         {/* 4. EDITOR MAIN CONTAINER */}
         <div className="flex-1 flex flex-col overflow-hidden bg-[#1e1e1e]">
           {/* TABS BAR */}
-          <div className="h-5 sm:h-6 bg-[#252526] flex items-center overflow-x-auto vscode-scrollbar border-b border-[#1e1e1e]">
+          <div className="h-3.5 sm:h-6 bg-[#252526] flex items-center overflow-x-auto vscode-scrollbar border-b border-[#1e1e1e]">
             {openTabs.map((tabId) => {
               const file = INITIAL_FILES.find((f) => f.id === tabId);
               if (!file) return null;
@@ -545,17 +545,17 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
                 <div
                   key={tabId}
                   onClick={() => setActiveFileId(tabId)}
-                  className={`h-full px-2 text-[8px] sm:text-[9px] flex items-center gap-1.5 border-r border-[#1e1e1e] cursor-pointer transition-colors shrink-0 ${
+                  className={`h-full px-1 sm:px-2 text-[5.5px] xs:text-[7.5px] sm:text-[9px] flex items-center gap-1 sm:gap-1.5 border-r border-[#1e1e1e] cursor-pointer transition-colors shrink-0 ${
                     isActive
-                      ? "bg-[#1e1e1e] text-white border-t-2 border-t-[#007acc]"
+                      ? "bg-[#1e1e1e] text-white border-t sm:border-t-2 border-t-[#007acc]"
                       : "bg-[#2d2d2d] text-[#969696] hover:bg-[#282828]"
                   }`}
                 >
                   {getFileIcon(file.name)}
-                  <span>{file.name}</span>
+                  <span className="truncate max-w-[50px] sm:max-w-none">{file.name}</span>
                   <X
                     onClick={(e) => closeTab(e, tabId)}
-                    className="w-2.5 h-2.5 rounded hover:bg-white/20 p-0.5 text-[#969696] hover:text-white"
+                    className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded hover:bg-white/20 p-0.5 text-[#969696] hover:text-white"
                   />
                 </div>
               );
@@ -563,21 +563,21 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
           </div>
 
           {/* BREADCRUMBS */}
-          <div className="h-3.5 sm:h-4 bg-[#1e1e1e] border-b border-[#252526] px-2 flex items-center text-[7.5px] sm:text-[8.5px] text-[#858585] font-mono gap-1">
-            <span>{activeFile.folder}</span>
+          <div className="h-2.5 sm:h-4 bg-[#1e1e1e] border-b border-[#252526] px-1 sm:px-2 flex items-center text-[5.5px] sm:text-[8.5px] text-[#858585] font-mono gap-1">
+            <span className="truncate">{activeFile.folder}</span>
             <span>&gt;</span>
-            <span className="text-[#cccccc]">{activeFile.name}</span>
+            <span className="text-[#cccccc] truncate">{activeFile.name}</span>
           </div>
 
           {/* INTERACTIVE CODE EDITING AREA */}
           <div className="flex-1 flex overflow-hidden relative">
             {/* CODE EDITOR CONTAINER */}
-            <div className="flex-1 flex overflow-hidden relative font-mono text-[8px] sm:text-[9.5px] leading-4 sm:leading-5">
+            <div className="flex-1 flex overflow-hidden relative font-mono text-[5.5px] xs:text-[7.5px] sm:text-[9.5px] leading-3 sm:leading-5">
               {/* Line numbers column */}
-              <div className="w-5 sm:w-7 select-none text-right pr-1.5 text-[#6e7681] bg-[#1e1e1e] border-r border-[#2d2d2d] py-1 shrink-0 overflow-hidden">
+              <div className="w-3.5 sm:w-7 select-none text-right pr-1 sm:pr-1.5 text-[#6e7681] bg-[#1e1e1e] border-r border-[#2d2d2d] py-0.5 sm:py-1 shrink-0 overflow-hidden">
                 <div style={{ transform: `translateY(-${scrollPos.top}px)` }}>
                   {lines.map((_, idx) => (
-                    <div key={idx} className="h-4 sm:h-5">
+                    <div key={idx} className="h-3 sm:h-5">
                       {idx + 1}
                     </div>
                   ))}
@@ -585,20 +585,20 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
               </div>
 
               {/* Code display layer + Real Editable Textarea overlay */}
-              <div className="flex-1 relative overflow-hidden p-1">
+              <div className="flex-1 relative overflow-hidden p-0.5 sm:p-1">
                 {/* Visual Highlighted Code Layer */}
                 <div
-                  className="absolute inset-0 p-1 pointer-events-none font-mono whitespace-pre overflow-hidden text-[#d4d4d4]"
+                  className="absolute inset-0 p-0.5 sm:p-1 pointer-events-none font-mono whitespace-pre overflow-hidden text-[#d4d4d4]"
                   style={{ transform: `translate(-${scrollPos.left}px, -${scrollPos.top}px)` }}
                 >
                   {lines.map((line, idx) => (
-                    <div key={idx} className="h-4 sm:h-5">
+                    <div key={idx} className="h-3 sm:h-5">
                       {renderSyntaxLine(line, activeFile.language)}
                     </div>
                   ))}
                 </div>
 
-                {/* Real Textarea Overlay allowing cursor placement, typing, selection, backspace, copy, paste, undo/redo */}
+                {/* Real Textarea Overlay */}
                 <textarea
                   ref={textareaRef}
                   value={currentContent}
@@ -607,13 +607,13 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
                   onClick={(e) => updateCursorInfo(e.currentTarget)}
                   onKeyUp={(e) => updateCursorInfo(e.currentTarget)}
                   spellCheck={false}
-                  className="absolute inset-0 p-1 font-mono text-transparent caret-[#007acc] bg-transparent resize-none outline-none overflow-auto vscode-scrollbar whitespace-pre leading-4 sm:leading-5 selection:bg-[#264f78] selection:text-transparent w-full h-full"
+                  className="absolute inset-0 p-0.5 sm:p-1 font-mono text-transparent caret-[#007acc] bg-transparent resize-none outline-none overflow-auto vscode-scrollbar whitespace-pre leading-3 sm:leading-5 selection:bg-[#264f78] selection:text-transparent w-full h-full"
                 />
               </div>
             </div>
 
             {/* VISUAL MINIMAP */}
-            <div className="w-5 sm:w-8 bg-[#1e1e1e] border-l border-[#252526] p-0.5 select-none pointer-events-none hidden xs:block shrink-0">
+            <div className="w-3 sm:w-8 bg-[#1e1e1e] border-l border-[#252526] p-0.5 select-none pointer-events-none hidden sm:block shrink-0">
               <div className="space-y-0.5 opacity-40">
                 {lines.slice(0, 25).map((line, idx) => (
                   <div
@@ -627,40 +627,40 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
           </div>
 
           {/* 5. VISUAL TERMINAL (STRICTLY NON-INTERACTIVE) */}
-          <div className="h-12 sm:h-16 bg-[#1e1e1e] border-t border-[#2d2d2d] flex flex-col shrink-0">
-            <div className="h-3.5 sm:h-4 bg-[#252526] px-2 flex items-center gap-3 text-[7.5px] sm:text-[8.5px] font-mono text-[#858585] border-b border-[#1e1e1e]">
-              <span className="text-white border-b-2 border-[#007acc] pb-0.5 font-semibold flex items-center gap-1">
-                <TerminalIcon className="w-2.5 h-2.5" /> TERMINAL
+          <div className="h-8 sm:h-16 bg-[#1e1e1e] border-t border-[#2d2d2d] flex flex-col shrink-0">
+            <div className="h-3 sm:h-4 bg-[#252526] px-1 sm:px-2 flex items-center gap-2 sm:gap-3 text-[5.5px] sm:text-[8.5px] font-mono text-[#858585] border-b border-[#1e1e1e]">
+              <span className="text-white border-b border-b-[#007acc] pb-0.5 font-semibold flex items-center gap-0.5 sm:gap-1">
+                <TerminalIcon className="w-2 h-2 sm:w-2.5 sm:h-2.5" /> TERMINAL
               </span>
               <span>PROBLEMS (0)</span>
-              <span>OUTPUT</span>
-              <span>DEBUG CONSOLE</span>
+              <span className="hidden xs:inline">OUTPUT</span>
+              <span className="hidden xs:inline">DEBUG CONSOLE</span>
             </div>
 
-            {/* Terminal Output Logs (Non-interactive pointer-events-none) */}
-            <div className="flex-1 p-1 font-mono text-[7.5px] sm:text-[8.5px] text-[#cccccc] space-y-0.5 overflow-hidden select-none pointer-events-none bg-[#181818]">
+            {/* Terminal Output Logs */}
+            <div className="flex-1 p-0.5 sm:p-1 font-mono text-[5.5px] sm:text-[8.5px] text-[#cccccc] space-y-0.5 overflow-hidden select-none pointer-events-none bg-[#181818]">
               <div className="flex items-center gap-1 text-[#3794ff]">
                 <span>[portfolio-dev]</span>
                 <span className="text-white">npm run dev</span>
               </div>
               <div className="text-[#858585]">▲ Next.js 16.3.0 - Local: http://localhost:3000</div>
               <div className="text-[#4ec9b0] flex items-center gap-1">
-                <Check className="w-2.5 h-2.5 text-[#3794ff]" />
+                <Check className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#3794ff]" />
                 <span>Ready in 0.8s — Editing active in memory</span>
               </div>
             </div>
           </div>
 
           {/* 6. STATUS BAR */}
-          <div className="h-3.5 sm:h-4 bg-[#007acc] text-white px-2 flex items-center justify-between text-[7px] sm:text-[8px] font-mono select-none shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1">
-                <GitBranch className="w-2.5 h-2.5" /> main*
+          <div className="h-2.5 sm:h-4 bg-[#007acc] text-white px-1 sm:px-2 flex items-center justify-between text-[5.5px] xs:text-[7px] sm:text-[8px] font-mono select-none shrink-0">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="flex items-center gap-0.5 sm:gap-1">
+                <GitBranch className="w-2 h-2 sm:w-2.5 sm:h-2.5" /> main*
               </span>
               <span>0 ⊗ 0 △</span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <span>
                 Ln {cursorPos.line}, Col {cursorPos.col}
               </span>
@@ -674,7 +674,7 @@ export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeP
                   ? "Markdown"
                   : "TypeScript JSX"}
               </span>
-              <span className="hidden xs:inline">Prettier ✓</span>
+              <span className="hidden sm:inline">Prettier ✓</span>
             </div>
           </div>
         </div>

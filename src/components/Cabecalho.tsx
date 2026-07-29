@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Volume2, VolumeX } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import { useSound } from "@/context/SoundContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CabecalhoProps {
@@ -12,6 +13,7 @@ interface CabecalhoProps {
 export default function Cabecalho({ name = "Bueno" }: CabecalhoProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { soundEnabled, toggleSound } = useSound();
 
   const menuItems = [
     { label: "Sobre Mim", href: "#sobre-mim" },
@@ -57,16 +59,25 @@ export default function Cabecalho({ name = "Bueno" }: CabecalhoProps) {
           ))}
         </div>
 
-        {/* Actions (Theme + Contact Button) */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Actions (Theme + Sound + Contact Button) */}
+        <div className="hidden md:flex items-center gap-3">
+           <button
+            onClick={toggleSound}
+            className="p-2.5 rounded-full border border-border/40 hover:bg-border/10 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+            aria-label={soundEnabled ? "Desativar som de digitação" : "Ativar som de digitação"}
+            title={soundEnabled ? "Desativar som de digitação" : "Ativar som de digitação"}
+          >
+            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
           <button
             onClick={toggleTheme}
             className="p-2.5 rounded-full border border-border/40 hover:bg-border/10 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
             aria-label="Alternar tema"
+            title="Alternar tema"
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          
+      
           <a
             href="#contato"
             className="bg-accent text-primary font-sans font-semibold text-sm px-6 py-2.5 rounded-full hover:opacity-90 transition-all cursor-pointer"
@@ -75,14 +86,24 @@ export default function Cabecalho({ name = "Bueno" }: CabecalhoProps) {
           </a>
         </div>
 
-        {/* Mobile Menu & Theme Toggle */}
-        <div className="flex items-center gap-3 md:hidden">
+        {/* Mobile Menu & Theme / Sound Toggle */}
+        <div className="flex items-center gap-2 md:hidden">
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full border border-border/40 text-text-secondary"
             aria-label="Alternar tema"
+            title="Alternar tema"
           >
             {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          <button
+            onClick={toggleSound}
+            className="p-2 rounded-full border border-border/40 text-text-secondary"
+            aria-label={soundEnabled ? "Desativar som de digitação" : "Ativar som de digitação"}
+            title={soundEnabled ? "Desativar som de digitação" : "Ativar som de digitação"}
+          >
+            {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
           </button>
           
           <button

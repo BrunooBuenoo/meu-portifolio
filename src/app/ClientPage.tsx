@@ -8,6 +8,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useTheme } from "@/context/ThemeContext";
+import { useSound } from "@/context/SoundContext";
 import { IconeCelularAnimado } from "@/components/IconesAnimados";
 import SimuladorVSCode from "@/components/SimuladorVSCode";
 
@@ -250,6 +251,7 @@ function Typewriter({
   pauseStart: number;
   pauseEnd: number;
 }) {
+  const { soundEnabled } = useSound();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -260,46 +262,58 @@ function Typewriter({
   const canPlaySoundRef = useRef(false);
 
   useEffect(() => {
-    const unlockAudio = () => {
-      canPlaySoundRef.current = true;
+    const loadSamples = async () => {
+      if (!keyboardSpaceSampleRef.current) {
+        const spaceAudio = new Audio(KEYBOARD_SPACE_SAMPLE_PATH);
+        spaceAudio.preload = "auto";
+        spaceAudio.load();
+        keyboardSpaceSampleRef.current = spaceAudio;
+      }
 
-      const loadSamples = async () => {
-        if (!keyboardSpaceSampleRef.current) {
-          const spaceAudio = new Audio(KEYBOARD_SPACE_SAMPLE_PATH);
-          spaceAudio.preload = "auto";
-          spaceAudio.load();
-          keyboardSpaceSampleRef.current = spaceAudio;
+      if (keyboardSamplesRef.current.length > 0) return;
+
+      try {
+        const response = await fetch("/api/sounds/typing", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("failed to fetch typing sounds");
         }
 
-        if (keyboardSamplesRef.current.length > 0) return;
+        const data = (await response.json()) as { keySamples?: string[] };
+        const samples = Array.isArray(data.keySamples) ? data.keySamples : [];
 
-        try {
-          const response = await fetch("/api/sounds/typing", { cache: "no-store" });
-          if (!response.ok) {
-            throw new Error("failed to fetch typing sounds");
-          }
-
-          const data = (await response.json()) as { keySamples?: string[] };
-          const samples = Array.isArray(data.keySamples) ? data.keySamples : [];
-
-          keyboardSamplesRef.current = samples.map((path) => {
-            const audio = new Audio(path);
-            audio.preload = "auto";
-            audio.load();
-            return audio;
-          });
-        } catch {
-          const fallbackAudio = new Audio(KEYBOARD_FALLBACK_SAMPLE_PATH);
-          fallbackAudio.preload = "auto";
-          fallbackAudio.load();
-          keyboardSamplesRef.current = [fallbackAudio];
-        }
-      };
-
-      void loadSamples();
+        keyboardSamplesRef.current = samples.map((path) => {
+          const audio = new Audio(path);
+          audio.preload = "auto";
+          audio.load();
+          return audio;
+        });
+      } catch {
+        const fallbackAudio = new Audio(KEYBOARD_FALLBACK_SAMPLE_PATH);
+        fallbackAudio.preload = "auto";
+        fallbackAudio.load();
+        keyboardSamplesRef.current = [fallbackAudio];
+      }
     };
 
-    const cleanupAudio = () => {
+    void loadSamples();
+
+    const unlockAudio = () => {
+      canPlaySoundRef.current = true;
+    };
+
+    window.addEventListener("pointerdown", unlockAudio);
+    window.addEventListener("keydown", unlockAudio);
+    window.addEventListener("touchstart", unlockAudio);
+    window.addEventListener("scroll", unlockAudio);
+    window.addEventListener("click", unlockAudio);
+
+    return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("scroll", unlockAudio);
+      window.removeEventListener("click", unlockAudio);
+
       for (const sample of keyboardSamplesRef.current) {
         sample.pause();
         sample.src = "";
@@ -313,44 +327,43 @@ function Typewriter({
         keyboardSpaceSampleRef.current = null;
       }
     };
-
-    window.addEventListener("pointerdown", unlockAudio, { once: true });
-    window.addEventListener("keydown", unlockAudio, { once: true });
-
-    return () => {
-      window.removeEventListener("pointerdown", unlockAudio);
-      window.removeEventListener("keydown", unlockAudio);
-      cleanupAudio();
-    };
   }, []);
 
   useEffect(() => {
     const typedNewChar = currentText.length > prevLengthRef.current && !isDeleting;
 
-    if (typedNewChar && canPlaySoundRef.current) {
+    if (typedNewChar && soundEnabled) {
       const nowPerf = performance.now();
       // Prevent unnaturally dense clicks on very fast typing settings.
       if (nowPerf - lastSoundAtRef.current >= 28) {
         lastSoundAtRef.current = nowPerf;
 
         const typedChar = currentText[currentText.length - 1] || "";
-        if (typedChar === " " && keyboardSpaceSampleRef.current) {
-          const spaceClick = keyboardSpaceSampleRef.current.cloneNode(true) as HTMLAudioElement;
-          spaceClick.volume = 0.09;
-          spaceClick.playbackRate = 1;
-          spaceClick.play().catch(() => undefined);
-        } else if (keyboardSamplesRef.current.length > 0) {
-          const sampleIndex = Math.floor(Math.random() * keyboardSamplesRef.current.length);
-          const click = keyboardSamplesRef.current[sampleIndex].cloneNode(true) as HTMLAudioElement;
-          click.volume = 0.03;
-          click.playbackRate = 1;
-          click.play().catch(() => undefined);
+        const isSpace = typedChar === " ";
+        const baseAudio = isSpace
+          ? keyboardSpaceSampleRef.current
+          : keyboardSamplesRef.current.length > 0
+          ? keyboardSamplesRef.current[Math.floor(Math.random() * keyboardSamplesRef.current.length)]
+          : null;
+
+        if (baseAudio) {
+          try {
+            const clickNode = baseAudio.cloneNode(true) as HTMLAudioElement;
+            clickNode.volume = isSpace ? 0.2 : 0.14;
+            clickNode.playbackRate = 1;
+            const playPromise = clickNode.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(() => undefined);
+            }
+          } catch {
+            // Safe fallback
+          }
         }
       }
     }
 
     prevLengthRef.current = currentText.length;
-  }, [currentText, isDeleting]);
+  }, [currentText, isDeleting, soundEnabled]);
 
   useEffect(() => {
     if (!messages || messages.length === 0) return;
@@ -822,7 +835,12 @@ export default function ClientPage({
                     transition={{ duration: 0.3 }}
                     className="absolute inset-0 flex items-center justify-center pb-[20%] sm:pb-[10%] pointer-events-none z-10 p-4"
                   >
-                    <DotsLoader size={64} dotSize={6} dotCount={6} color="#ffffff" speed="1s" spread="60deg" />
+                    <div className="sm:hidden">
+                      <DotsLoader size={36} dotSize={3.5} dotCount={6} color="#ffffff" speed="1s" spread="60deg" />
+                    </div>
+                    <div className="hidden sm:block">
+                      <DotsLoader size={64} dotSize={6} dotCount={6} color="#ffffff" speed="1s" spread="60deg" />
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
