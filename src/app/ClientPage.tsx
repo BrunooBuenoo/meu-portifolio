@@ -8,6 +8,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useTheme } from "@/context/ThemeContext";
+import { IconeCelularAnimado } from "@/components/IconesAnimados";
 
 gsap.registerPlugin(useGSAP);
 gsap.registerPlugin(ScrollTrigger);
@@ -1176,7 +1177,7 @@ export default function ClientPage({
 
                   <div className="flex items-center gap-4">
                     <div className="size-12 rounded-full border border-border/20 flex items-center justify-center text-accent bg-secondary/30">
-                      <Phone size={18} />
+                      <IconeCelularAnimado className="size-6 text-accent" />
                     </div>
                     <div>
                       <p
