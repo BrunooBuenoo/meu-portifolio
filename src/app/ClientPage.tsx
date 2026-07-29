@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Phone, MapPin, X, ArrowUpRight, ExternalLink, Send } from "lucide-react";
+import { Mail, Phone, MapPin, X, ArrowUpRight, ExternalLink, Send, Power, Loader2 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -193,6 +193,45 @@ type ThemeConfig = Record<string, ThemeConfigEntry | undefined>;
 
 const KEYBOARD_SPACE_SAMPLE_PATH = "/sounds/space.mp3";
 const KEYBOARD_FALLBACK_SAMPLE_PATH = "/sounds/type-1.mp3";
+
+// ==========================================
+// DOTS SPINNER LOADER
+// ==========================================
+function DotsLoader({
+  size = 64,
+  dotSize = 6,
+  dotCount = 6,
+  color = "#ffffffff",
+  speed = "1s",
+  spread = "60deg",
+}: {
+  size?: number;
+  dotSize?: number;
+  dotCount?: number;
+  color?: string;
+  speed?: string;
+  spread?: string;
+}) {
+  return (
+    <div
+      className="dots"
+      style={
+        {
+          "--size": `${size}px`,
+          "--dot-size": `${dotSize}px`,
+          "--dot-count": dotCount,
+          "--color": color,
+          "--speed": speed,
+          "--spread": spread,
+        } as React.CSSProperties
+      }
+    >
+      {Array.from({ length: dotCount }).map((_, i) => (
+        <div key={i} className="dot" style={{ "--i": i } as React.CSSProperties} />
+      ))}
+    </div>
+  );
+}
 
 // ==========================================
 // TYPEWRITER COMPONENT
@@ -415,6 +454,46 @@ export default function ClientPage({
         [key]: value
       }
     });
+  };
+
+  // Computer Power Interaction States
+  const [powerStatus, setPowerStatus] = useState<"off" | "starting" | "on" | "shutting-down">("off");
+  const powerTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Preload computer mockup images
+  useEffect(() => {
+    const imagesToPreload = [
+      "/images/desligado.png",
+      "/images/ligando.png",
+      "/images/ligado.png",
+    ];
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
+  const handlePowerClick = () => {
+    powerTimeoutsRef.current.forEach(clearTimeout);
+    powerTimeoutsRef.current = [];
+
+    if (powerStatus === "off") {
+      setPowerStatus("starting");
+
+      const t = setTimeout(() => {
+        setPowerStatus("on");
+      }, 5000);
+
+      powerTimeoutsRef.current = [t];
+    } else if (powerStatus === "on") {
+      setPowerStatus("shutting-down");
+
+      const t = setTimeout(() => {
+        setPowerStatus("off");
+      }, 3000);
+
+      powerTimeoutsRef.current = [t];
+    }
   };
 
   // Projects states
@@ -679,14 +758,52 @@ export default function ClientPage({
             <div className="hero-glow w-full h-[700px] absolute top-[-100px] left-1/2 -translate-x-1/2" style={getGlowStyle()} />
           </div>
 
-          {/* Imagem de Fundo da Hero com overlay de simulacao na tela do notebook */}
+          {/* Imagem de Fundo da Hero com transição de Ligar/Desligar Computador */}
           <div ref={heroImageRef} className="absolute right-0 bottom-14 sm:bottom-8 lg:bottom-0 w-full h-[62%] lg:h-full lg:w-[70%] z-0 pointer-events-none flex items-end justify-end opacity-100">
-            <div className="relative w-full h-auto max-h-[45vh] lg:max-h-[85vh]">
+            <div className="relative w-full h-auto max-h-[45vh] lg:max-h-[85vh] flex items-end justify-end">
+              {/* 1. Computador Desligado */}
               <img
-                src="/images/hero-n.png"
-                alt="Bueno Portfolio Background Mockup"
-                className="w-full h-auto max-h-[45vh] lg:max-h-[85vh] object-contain object-right-bottom select-none block"
-              />              
+                src="/images/desligado.png"
+                alt="Computador Desligado"
+                className={`w-full h-auto max-h-[45vh] lg:max-h-[85vh] object-contain object-right-bottom select-none transition-opacity duration-500 ease-in-out block ${
+                  powerStatus === "off" ? "opacity-100 relative" : "opacity-0 absolute inset-0 pointer-events-none"
+                }`}
+              />
+
+              {/* 2. Computador Inicializando / Encerrando */}
+              <img
+                src="/images/ligando.png"
+                alt="Computador Inicializando"
+                className={`w-full h-auto max-h-[45vh] lg:max-h-[85vh] object-contain object-right-bottom select-none transition-opacity duration-500 ease-in-out block ${
+                  powerStatus === "starting" || powerStatus === "shutting-down"
+                    ? "opacity-100 relative"
+                    : "opacity-0 absolute inset-0 pointer-events-none"
+                }`}
+              />
+
+              {/* 3. Computador Ligado */}
+              <img
+                src="/images/ligado.png"
+                alt="Computador Ligado"
+                className={`w-full h-auto max-h-[45vh] lg:max-h-[85vh] object-contain object-right-bottom select-none transition-opacity duration-500 ease-in-out block ${
+                  powerStatus === "on" ? "opacity-100 relative" : "opacity-0 absolute inset-0 pointer-events-none"
+                }`}
+              />
+
+              {/* Overlay de Animação do Sistema Operacional durante Boot e Shutdown (Centralizado na tela do notebook) */}
+              <AnimatePresence>
+                {(powerStatus === "starting" || powerStatus === "shutting-down") && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 flex items-center justify-center pb-[20%] sm:pb-[10%] pointer-events-none z-10 p-4"
+                  >
+                    <DotsLoader size={64} dotSize={6} dotCount={6} color="#ffffff" speed="1s" spread="60deg" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -815,6 +932,53 @@ export default function ClientPage({
                     </a>
                   </BotaoMagnetico>
                 )}
+
+                {/* Botão Power (Ligar / Desligar Sistema) */}
+                <BotaoMagnetico>
+                  <button
+                    type="button"
+                    onClick={handlePowerClick}
+                    disabled={powerStatus === "starting" || powerStatus === "shutting-down"}
+                    aria-label={
+                      powerStatus === "off"
+                        ? "Ligar sistema"
+                        : powerStatus === "on"
+                        ? "Desligar sistema"
+                        : "Processando..."
+                    }
+                    className={`font-sans font-semibold text-base px-6 py-3.5 rounded-full transition-all duration-300 flex items-center gap-2.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary ${
+                      powerStatus === "off"
+                        ? "border border-accent text-accent bg-accent/10 hover:bg-accent/20 hover:border-accent-hover shadow-[0_0_12px_rgba(148,255,71,0.2)]"
+                        : powerStatus === "starting"
+                        ? "opacity-60 border border-accent/60 text-accent/80 bg-accent/5 cursor-not-allowed"
+                        : powerStatus === "on"
+                        ? "border border-red-500 text-red-400 bg-red-500/10 hover:bg-red-500/20 hover:border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
+                        : "opacity-60 border border-red-500/60 text-red-400/80 bg-red-500/5 cursor-not-allowed"
+                    }`}
+                  >
+                    <Power
+                      size={18}
+                      className={`transition-transform duration-300 ${
+                        powerStatus === "off"
+                          ? "text-accent"
+                          : powerStatus === "starting"
+                          ? "text-accent/80 animate-pulse"
+                          : powerStatus === "on"
+                          ? "text-red-400 animate-pulse"
+                          : "text-red-400/80 animate-pulse"
+                      }`}
+                    />
+                    <span>
+                      {powerStatus === "off"
+                        ? "Ligar"
+                        : powerStatus === "on"
+                        ? "Desligar"
+                        : powerStatus === "starting"
+                        ? "Ligando..."
+                        : "Encerrando..."}
+                    </span>
+                  </button>
+                </BotaoMagnetico>
               </div>
             </div>
           </div>

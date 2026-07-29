@@ -57,7 +57,7 @@ export default function ContadorEstatisticas({ stats = [] }: ContadorEstatistica
   if (stats.length === 0) return null;
 
   return (
-    <section className="bg-primary py-16 border-y border-border/40 transition-colors">
+    <section className="bg-primary py-16 border-y border-border/40 transition-colors" id="estatisticas">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-10">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-12 sm:gap-24 md:gap-36">
           {stats.map((stat, idx) => (
@@ -66,7 +66,7 @@ export default function ContadorEstatisticas({ stats = [] }: ContadorEstatistica
                 {stat.icon ? (
                   renderIconeAnimado(stat.icon, "size-10 text-accent")
                 ) : (
-                  renderIconeAnimado("phone", "size-10 text-accent")
+                  renderIconeAnimado("rocket", "size-10 text-accent")
                 )}
                 <span className="font-sans font-bold text-text-primary text-[42px] sm:text-[48px] leading-none tracking-tight">
                   <AnimatedNumber value={stat.number} />

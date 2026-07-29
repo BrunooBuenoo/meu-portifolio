@@ -9,8 +9,7 @@ interface IconProps {
 }
 
 /**
- * Configuração padrão de margem do viewport para garantir que a animação
- * ocorra bem no CENTRO da tela do usuário (evitando que aconteça escondida na borda inferior).
+ * Configuração padrão de margem do viewport para acionamento
  */
 const VIEWPORT_CONFIG = {
   once: false,
@@ -37,7 +36,7 @@ export function IconeCelularAnimado({ className = "size-10 text-accent", size }:
         viewBox="0 0 40 40"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full overflow-visible"
+        className="w-full h-full overflow-visible block leading-none"
       >
         {/* Corpo do Celular */}
         <rect
@@ -120,36 +119,30 @@ export function IconeCelularAnimado({ className = "size-10 text-accent", size }:
 /**
  * Ícone SVG Animado de Foguete / Nave Espacial (Projetos Concluídos)
  * Utiliza a ilustração SVG oficial fornecida em 2026703.svg.
- * Animação de Viewport:
- * - Aterrissagem: Ao atingir o centro do viewport (-100px), desce suavemente do alto (-120px) e pousa no local.
- * - Decolagem: Ao sair do centro do viewport, decola para cima (-120px) desaparecendo.
+ * 
+ * Posicionado ao lado esquerdo do número (ex: 🚀 20+ PROJETOS CONCLUÍDOS):
+ * - Animação de entrada e pouso no viewport quando visível na tela.
+ * - Animação de elevação (decolagem suave) ao passar o cursor por cima.
  */
 export function IconeFogueteAnimado({ className = "size-10 text-accent", size }: IconProps) {
   const customStyle = size ? { width: size, height: size } : undefined;
 
   return (
     <motion.div
-      initial={{ y: -120, opacity: 0, scale: 0.4 }}
+      initial={{ y: 50, opacity: 0, scale: 0.5 }}
       whileInView={{ y: 0, opacity: 1, scale: 1 }}
       viewport={VIEWPORT_CONFIG}
-      transition={{
-        type: "spring",
-        stiffness: 70,
-        damping: 15,
-        mass: 0.9,
-      }}
-      whileHover={{ scale: 1.2, y: -5 }}
+      transition={{ type: "spring", stiffness: 85, damping: 14 }}
+      whileHover={{ y: -8, scale: 1.15 }}
       className={`relative inline-flex items-center justify-center shrink-0 ${className}`}
       style={customStyle}
     >
       <svg
-        viewBox="0 0 640 1380"
+        viewBox="0 0 640 1280"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full overflow-visible"
+        className="w-full h-full overflow-visible block leading-none"
       >
-        
-        {/* Ilustração Vetorial Oficial da Nave (2026703.svg) */}
         <g transform="translate(0.000000,1280.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
           <path d="M3119 12723 c-356 -296 -779 -782 -1096 -1258 -269 -404 -520 -896 -688 -1345 -217 -579 -350 -1169 -411 -1820 -21 -230 -30 -826 -15 -1075 66 -1129 358 -2291 871 -3465 39 -91 74 -173 77 -183 5 -16 63 -17 1004 -19 550 -2 1149 -3 1331 -3 l333 0 72 160 c93 206 295 712 371 930 504 1441 667 2806 487 4075 -183 1280 -713 2462 -1539 3425 -236 276 -632 655 -683 655 -13 0 -59 -31 -114 -77z m296 -285 c671 -680 1180 -1421 1387 -2021 24 -69 40 -128 38 -131 -3 -3 -514 -1 -1135 4 -622 5 -1350 10 -1619 10 l-488 0 7 27 c12 50 165 386 249 548 212 409 459 783 737 1116 179 214 598 619 641 619 7 0 89 -78 183 -172z m22 -3143 c457 -88 853 -455 987 -916 98 -341 28 -713 -198 -1044 -183 -268 -462 -453 -781 -516 -101 -20 -330 -18 -434 4 -274 59 -490 176 -692 377 -193 192 -301 390 -350 640 -18 95 -16 308 4 413 88 445 429 843 852 996 163 59 436 80 612 46z m-980 -4985 l533 0 0 -325 0 -325 -534 0 -533 0 -125 323 c-69 177 -123 326 -120 331 3 5 57 6 125 2 66 -3 360 -6 654 -6z m2283 -6 c0 -3 -59 -150 -132 -325 l-132 -319 -533 0 -533 0 0 325 0 325 665 0 c366 0 665 -3 665 -6z" />
           <path d="M3410 12208 c245 -517 353 -887 353 -1213 1 -216 -41 -359 -133 -458 l-41 -45 513 -4 c282 -2 515 -2 517 -1 9 6 -221 453 -315 613 -263 450 -544 828 -831 1120 l-133 135 70 -147z" />
@@ -179,7 +172,7 @@ export function IconeCafeAnimado({ className = "size-10 text-accent", size }: Ic
       className={`relative inline-flex items-center justify-center shrink-0 ${className}`}
       style={customStyle}
     >
-      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible block leading-none">
         {/* Corpo da Xícara */}
         <path
           d="M9 15H27V24C27 27.866 23.866 31 20 31H16C12.134 31 9 27.866 9 24V15Z"
@@ -249,7 +242,7 @@ export function IconeTrofeuAnimado({ className = "size-10 text-accent", size }: 
       className={`relative inline-flex items-center justify-center shrink-0 ${className}`}
       style={customStyle}
     >
-      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible block leading-none">
         {/* Taça do Troféu */}
         <path
           d="M11 6H29V16C29 20.9706 24.9706 25 20 25C15.0294 25 11 20.9706 11 16V6Z"
