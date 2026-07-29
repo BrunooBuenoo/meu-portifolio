@@ -180,3 +180,23 @@ html.lenis body {
 .lenis.lenis-smooth [data-lenis-prevent] {
   overscroll-behavior: contain;
 }
+
+/* Custom Scrollbar minimalista para o Simulador VS Code */
+.vscode-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.vscode-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.vscode-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.vscode-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+.vscode-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}

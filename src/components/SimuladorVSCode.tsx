@@ -1,328 +1,684 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Files,
+  Search,
+  GitBranch,
+  Blocks,
+  Settings,
+  ChevronDown,
+  ChevronRight,
+  X,
+  FileCode,
+  Folder,
+  FolderOpen,
+  Terminal as TerminalIcon,
+  Check,
+  Code2,
+  FileJson,
+  FileText,
+} from "lucide-react";
 
-type DevFile = {
+export type PowerStatus = "off" | "starting" | "on" | "shutting-down";
+
+interface DevFile {
+  id: string;
   name: string;
+  folder: string;
   language: string;
-  lines: string[];
-};
-
-type Phase = {
-  fileIndex: number;
-  typeMs: number;
-  holdMs: number;
-};
-
-const FILES: DevFile[] = [
-  {
-    name: "page.tsx",
-    language: "typescriptreact",
-    lines: [
-      "import { motion } from \"framer-motion\";",
-      "",
-      "const sectionReveal = {",
-      "  hidden: {},",
-      "  visible: { transition: { staggerChildren: 0.14 } },",
-      "};",
-      "",
-      "export default function HomeSection() {",
-      "  return (",
-      "    <motion.div variants={sectionReveal}",
-      "      initial=\"hidden\"",
-      "      whileInView=\"visible\"",
-      "      viewport={{ once: true, amount: 0.2 }}",
-      "    >",
-      "      <h2>Desenvolvendo solucoes reais</h2>",
-      "    </motion.div>",
-      "  );",
-      "}",
-    ],
-  },
-  {
-    name: "ClientPage.tsx",
-    language: "typescriptreact",
-    lines: [
-      "const sectionReveal = {",
-      "  hidden: {},",
-      "  visible: { transition: { staggerChildren: 0.14 } },",
-      "};",
-      "",
-      "const sectionItem = {",
-      "  hidden: { opacity: 0, y: 24 },",
-      "  visible: { opacity: 1, y: 0 },",
-      "};",
-      "",
-      "<motion.div variants={sectionReveal}>",
-      "  <motion.h2 variants={sectionItem}>Minha Jornada</motion.h2>",
-      "  <motion.p variants={sectionItem}>",
-      "    Animando um elemento por vez na rolagem",
-      "  </motion.p>",
-      "</motion.div>",
-    ],
-  },
-  {
-    name: "firebase.ts",
-    language: "typescript",
-    lines: [
-      "const firebaseConfig = {",
-      "  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,",
-      "  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,",
-      "  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,",
-      "};",
-      "",
-      "const missing = Object.entries(firebaseConfig)",
-      "  .filter(([, v]) => !v)",
-      "  .map(([k]) => k);",
-      "",
-      "export const db = app ? getFirestore(app) : null;",
-      "export const auth = app ? getAuth(app) : null;",
-    ],
-  },
-];
-
-const CURSOR_PATHS = [
-  [
-    { x: 7, y: 24 },
-    { x: 10, y: 31 },
-    { x: 18, y: 35 },
-    { x: 27, y: 40 },
-    { x: 42, y: 47 },
-    { x: 58, y: 58 },
-  ],
-  [
-    { x: 8, y: 30 },
-    { x: 15, y: 37 },
-    { x: 24, y: 43 },
-    { x: 37, y: 49 },
-    { x: 52, y: 56 },
-    { x: 63, y: 62 },
-  ],
-  [
-    { x: 7, y: 27 },
-    { x: 14, y: 34 },
-    { x: 26, y: 42 },
-    { x: 40, y: 51 },
-    { x: 55, y: 58 },
-    { x: 68, y: 65 },
-  ],
-];
-
-const PHASES: Phase[] = [
-  { fileIndex: 0, typeMs: 9000, holdMs: 1000 },
-  { fileIndex: 1, typeMs: 9000, holdMs: 1000 },
-  { fileIndex: 2, typeMs: 9000, holdMs: 1000 },
-];
-
-const TOTAL_MS = PHASES.reduce((acc, phase) => acc + phase.typeMs + phase.holdMs, 0);
-const STEP_MS = 80;
-
-function getPhaseByElapsed(elapsedMs: number) {
-  let start = 0;
-  for (let i = 0; i < PHASES.length; i++) {
-    const phase = PHASES[i];
-    const duration = phase.typeMs + phase.holdMs;
-    const end = start + duration;
-    if (elapsedMs <= end) {
-      return {
-        phase,
-        phaseIndex: i,
-        phaseElapsed: Math.max(0, elapsedMs - start),
-      };
-    }
-    start = end;
-  }
-
-  const lastIndex = PHASES.length - 1;
-  return {
-    phase: PHASES[lastIndex],
-    phaseIndex: lastIndex,
-    phaseElapsed: PHASES[lastIndex].typeMs + PHASES[lastIndex].holdMs,
-  };
+  content: string;
 }
+
+const INITIAL_FILES: DevFile[] = [
+  {
+    id: "Hero.tsx",
+    name: "Hero.tsx",
+    folder: "src/components",
+    language: "typescriptreact",
+    content: `import React from "react";
+import { motion } from "framer-motion";
+
+export default function Hero() {
+  return (
+    <section className="min-h-screen flex items-center">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-6xl font-bold text-white">
+          Desenvolvendo Soluções
+        </h1>
+        <p className="text-lg text-accent mt-4">
+          Engenharia de Software & Interface Design
+        </p>
+      </div>
+    </section>
+  );
+}`,
+  },
+  {
+    id: "page.tsx",
+    name: "page.tsx",
+    folder: "src/app",
+    language: "typescriptreact",
+    content: `import ClientPage from "@/app/ClientPage";
+import { getSiteSettings } from "@/lib/data";
+
+export default async function Page() {
+  const data = await getSiteSettings();
+  return <ClientPage siteSettings={data} />;
+}`,
+  },
+  {
+    id: "Projects.tsx",
+    name: "Projects.tsx",
+    folder: "src/components",
+    language: "typescriptreact",
+    content: `export const projects = [
+  {
+    id: "1",
+    title: "Plataforma Web SaaS",
+    techs: ["React", "Next.js", "TailwindCSS"],
+    featured: true
+  },
+  {
+    id: "2",
+    title: "Sistema E-commerce",
+    techs: ["TypeScript", "Node.js", "PostgreSQL"],
+    featured: true
+  }
+];`,
+  },
+  {
+    id: "ContadorEstatisticas.tsx",
+    name: "ContadorEstatisticas.tsx",
+    folder: "src/components",
+    language: "typescriptreact",
+    content: `import React from "react";
+import { IconeFogueteAnimado } from "@/components/IconesAnimados";
+
+export default function ContadorEstatisticas() {
+  return (
+    <div className="flex items-center gap-4 py-8">
+      <div className="flex items-center gap-2">
+        <IconeFogueteAnimado />
+        <span className="text-3xl font-bold text-white">20+</span>
+        <span className="text-xs text-text-secondary uppercase">
+          Projetos Concluídos
+        </span>
+      </div>
+    </div>
+  );
+}`,
+  },
+  {
+    id: "globals.css",
+    name: "globals.css",
+    folder: "src/styles",
+    language: "css",
+    content: `@import "tailwindcss";
+
+:root {
+  --primary: #09090b;
+  --accent: #94ff47;
+  --border: #27272a;
+}
+
+body {
+  background-color: var(--primary);
+  color: #ffffff;
+  font-family: var(--font-sans);
+}`,
+  },
+  {
+    id: "package.json",
+    name: "package.json",
+    folder: "root",
+    language: "json",
+    content: `{
+  "name": "meu-portifolio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.3.0",
+    "react": "^19.2.0",
+    "framer-motion": "^12.0.0",
+    "gsap": "^3.15.0",
+    "lucide-react": "^1.23.0"
+  }
+}`,
+  },
+  {
+    id: "README.md",
+    name: "README.md",
+    folder: "root",
+    language: "markdown",
+    content: `# Bruno Bueno — Portfólio
+
+Engenheiro de Software & Desenvolvedor Full Stack.
+
+## 🚀 Tecnologias
+- **Frontend**: React 19, Next.js 16, TypeScript, TailwindCSS v4
+- **Animações**: GSAP, ScrollTrigger, Framer Motion
+- **Design**: Dark Mode Sleek, VS Code Interactive Editor Simulation
+
+## 💻 Instalação Local
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+`,
+  },
+];
 
 interface SimuladorVSCodeProps {
-  className?: string;
+  powerStatus?: PowerStatus;
 }
 
-export default function SimuladorVSCode({ className = "" }: SimuladorVSCodeProps) {
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const [finished, setFinished] = useState(false);
+export default function SimuladorVSCode({ powerStatus = "on" }: SimuladorVSCodeProps) {
+  // Pure in-memory file state
+  const [filesState, setFilesState] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    INITIAL_FILES.forEach((f) => {
+      initial[f.id] = f.content;
+    });
+    return initial;
+  });
 
-  const { phase, phaseIndex, phaseElapsed } = useMemo(() => getPhaseByElapsed(elapsedMs), [elapsedMs]);
+  const [openTabs, setOpenTabs] = useState<string[]>(["Hero.tsx", "page.tsx", "globals.css"]);
+  const [activeFileId, setActiveFileId] = useState<string>("Hero.tsx");
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
+    src: true,
+    components: true,
+    app: true,
+    styles: true,
+  });
 
-  const activeFile = FILES[phase.fileIndex];
-  const fullText = useMemo(() => activeFile.lines.join("\n"), [activeFile]);
+  const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
+  const [scrollPos, setScrollPos] = useState({ top: 0, left: 0 });
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const charCount = useMemo(() => {
-    if (phaseElapsed >= phase.typeMs) return fullText.length;
-    const progress = phaseElapsed / phase.typeMs;
-    return Math.floor(fullText.length * progress);
-  }, [phaseElapsed, phase.typeMs, fullText]);
+  const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+    setScrollPos({
+      top: e.currentTarget.scrollTop,
+      left: e.currentTarget.scrollLeft,
+    });
+  };
 
+  // Reset file states whenever computer is turned off or on fresh state
   useEffect(() => {
-    const timer = setInterval(() => {
-      setElapsedMs((prev) => {
-        if (prev >= TOTAL_MS) {
-          setFinished(true);
-          return TOTAL_MS;
-        }
-        return Math.min(prev + STEP_MS, TOTAL_MS);
+    if (powerStatus === "off") {
+      const initial: Record<string, string> = {};
+      INITIAL_FILES.forEach((f) => {
+        initial[f.id] = f.content;
       });
-    }, STEP_MS);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const visibleCode = fullText.slice(0, charCount);
-  const visibleLines = visibleCode.split("\n");
-
-  const activeCursorPath = CURSOR_PATHS[phaseIndex] || CURSOR_PATHS[0];
-  const cursorProgress = Math.min(1, phaseElapsed / phase.typeMs);
-  const cursorPointIndex = Math.min(
-    activeCursorPath.length - 1,
-    Math.floor(cursorProgress * (activeCursorPath.length - 1))
-  );
-  const cursorPoint = activeCursorPath[cursorPointIndex];
-
-  const renderLine = (line: string) => {
-    if (line.trim().startsWith("import ")) {
-      return (
-        <>
-          <span className="text-[#c586c0]">import</span>
-          <span className="text-[#d4d4d4]"> {line.slice("import".length)}</span>
-        </>
-      );
+      setFilesState(initial);
+      setOpenTabs(["Hero.tsx", "page.tsx", "globals.css"]);
+      setActiveFileId("Hero.tsx");
     }
+  }, [powerStatus]);
 
-    if (line.includes("export default function")) {
-      return (
-        <>
-          <span className="text-[#c586c0]">export</span>
-          <span className="text-[#c586c0]"> default</span>
-          <span className="text-[#569cd6]"> function</span>
-          <span className="text-[#dcdcaa]"> {line.split("function")[1] || ""}</span>
-        </>
-      );
+  const activeFile = INITIAL_FILES.find((f) => f.id === activeFileId) || INITIAL_FILES[0];
+  const currentContent = filesState[activeFile.id] ?? activeFile.content;
+  const lines = currentContent.split("\n");
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setFilesState((prev) => ({
+      ...prev,
+      [activeFile.id]: val,
+    }));
+    updateCursorInfo(e.target);
+  };
+
+  const updateCursorInfo = (el: HTMLTextAreaElement) => {
+    const selStart = el.selectionStart;
+    const textBefore = el.value.substring(0, selStart);
+    const linesBefore = textBefore.split("\n");
+    const currentLineNumber = linesBefore.length;
+    const currentColumnNumber = linesBefore[linesBefore.length - 1].length + 1;
+    setCursorPos({ line: currentLineNumber, col: currentColumnNumber });
+  };
+
+  const toggleFolder = (folderName: string) => {
+    setExpandedFolders((prev) => ({
+      ...prev,
+      [folderName]: !prev[folderName],
+    }));
+  };
+
+  const openFile = (fileId: string) => {
+    if (!openTabs.includes(fileId)) {
+      setOpenTabs((prev) => [...prev, fileId]);
     }
+    setActiveFileId(fileId);
+  };
 
-    if (line.trim().startsWith("const ")) {
-      const [first, ...rest] = line.split("=");
-      return (
-        <>
-          <span className="text-[#4fc1ff]">{first}</span>
-          {rest.length > 0 && <span className="text-[#d4d4d4]">={rest.join("=")}</span>}
-        </>
-      );
+  const closeTab = (e: React.MouseEvent, fileId: string) => {
+    e.stopPropagation();
+    const filtered = openTabs.filter((id) => id !== fileId);
+    if (filtered.length === 0) {
+      setOpenTabs([INITIAL_FILES[0].id]);
+      setActiveFileId(INITIAL_FILES[0].id);
+    } else {
+      setOpenTabs(filtered);
+      if (activeFileId === fileId) {
+        setActiveFileId(filtered[filtered.length - 1]);
+      }
     }
+  };
 
-    if (line.trim().startsWith("  ") || line.trim().startsWith("    ")) {
-      return <span className="text-[#d4d4d4]">{line}</span>;
+  const getFileIcon = (fileName: string) => {
+    if (fileName.endsWith(".tsx") || fileName.endsWith(".jsx")) {
+      return <Code2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#519aba] shrink-0" />;
     }
+    if (fileName.endsWith(".css")) {
+      return <FileCode className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#42a5f5] shrink-0" />;
+    }
+    if (fileName.endsWith(".json")) {
+      return <FileJson className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#cbcb41] shrink-0" />;
+    }
+    return <FileText className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#a0a0a0] shrink-0" />;
+  };
 
-    return <span className="text-[#d4d4d4]">{line}</span>;
+  const renderSyntaxLine = (line: string, lang: string) => {
+    if (!line) return <span>&nbsp;</span>;
+
+    const parts = line.split(/(".*?"|'.*?'|`.*?`|\b(?:import|export|default|function|return|const|let|var|from|async|await|interface|type)\b)/g);
+
+    return (
+      <>
+        {parts.map((part, i) => {
+          if (!part) return null;
+          if (/^(import|export|default|function|return|const|let|var|from|async|await|interface|type)$/.test(part)) {
+            return (
+              <span key={i} className="text-[#c586c0] font-semibold">
+                {part}
+              </span>
+            );
+          }
+          if (/^(".*?"|'.*?'|`.*?`)$/.test(part)) {
+            return (
+              <span key={i} className="text-[#ce9178]">
+                {part}
+              </span>
+            );
+          }
+          if (part.includes("<") || part.includes(">")) {
+            return (
+              <span key={i} className="text-[#569cd6]">
+                {part}
+              </span>
+            );
+          }
+          return (
+            <span key={i} className="text-[#d4d4d4]">
+              {part}
+            </span>
+          );
+        })}
+      </>
+    );
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: "easeOut" }}
-      className={`relative w-full h-full ${className}`}
-    >
-      <div className="relative w-full h-full rounded-[8px] border border-[#2f3e66] bg-[#1e1e1ee8] shadow-[0_10px_24px_rgba(0,0,0,0.52)] overflow-hidden">
-        <div className="h-6 border-b border-white/10 bg-[#252526] flex items-center px-2 text-[8px] text-[#cccccc] font-sans gap-2">
-          <span>File</span>
-          <span>Edit</span>
-          <span>Selection</span>
-          <span>View</span>
-          <span>Go</span>
-          <span>Run</span>
-          <span>Terminal</span>
+    <div className="w-full h-full bg-[#1e1e1e] text-[#cccccc] font-sans flex flex-col select-none overflow-hidden text-[8px] sm:text-[9.5px] leading-tight">
+      {/* 1. TOP MENU BAR */}
+      <div className="h-4 sm:h-5 bg-[#323233] border-b border-[#252526] flex items-center px-1.5 justify-between shrink-0">
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff5f56] inline-block" />
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ffbd2e] inline-block" />
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#27c93f] inline-block" />
+          </div>
+          <div className="hidden xs:flex items-center gap-2 ml-2 text-[8px] sm:text-[9px] text-[#cccccc]/80">
+            <span className="hover:text-white cursor-default">File</span>
+            <span className="hover:text-white cursor-default">Edit</span>
+            <span className="hover:text-white cursor-default">Selection</span>
+            <span className="hover:text-white cursor-default">View</span>
+            <span className="hover:text-white cursor-default">Go</span>
+            <span className="hover:text-white cursor-default">Run</span>
+            <span className="hover:text-white cursor-default">Terminal</span>
+          </div>
         </div>
 
-        <div className="h-7 border-b border-white/10 bg-[#2d2d2d] px-2 flex items-end gap-1.5">
-          {FILES.map((file, idx) => (
+        <div className="text-[7.5px] sm:text-[9px] text-[#a0a0a0] font-mono truncate max-w-[150px] sm:max-w-[250px]">
+          {activeFile.name} — meu-portifolio
+        </div>
+      </div>
+
+      {/* MAIN CONTAINER (Activity Bar + Sidebar + Editor) */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* 2. ACTIVITY BAR (Far Left) */}
+        <div className="w-5 sm:w-7 bg-[#333333] border-r border-[#2b2b2b] flex flex-col items-center py-1.5 justify-between shrink-0">
+          <div className="flex flex-col items-center gap-2 text-[#858585]">
+            <button className="text-white border-l-2 border-[#007acc] pl-0.5">
+              <Files className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </button>
+            <button className="hover:text-white transition-colors">
+              <Search className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </button>
+            <button className="hover:text-white transition-colors">
+              <GitBranch className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </button>
+            <button className="hover:text-white transition-colors">
+              <Blocks className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </button>
+          </div>
+          <button className="text-[#858585] hover:text-white transition-colors">
+            <Settings className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          </button>
+        </div>
+
+        {/* 3. SIDEBAR / EXPLORER */}
+        <div className="w-20 sm:w-28 bg-[#252526] border-r border-[#1e1e1e] flex flex-col shrink-0 overflow-y-auto vscode-scrollbar">
+          <div className="px-1.5 py-1 text-[7px] sm:text-[8px] font-bold tracking-wider text-[#bbbbbb] uppercase border-b border-[#2d2d2d] flex items-center justify-between">
+            <span>Explorer</span>
+          </div>
+
+          <div className="p-1 font-mono text-[7.5px] sm:text-[9px] text-[#cccccc] space-y-0.5">
+            {/* Folder src */}
+            <div>
+              <div
+                onClick={() => toggleFolder("src")}
+                className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+              >
+                {expandedFolders["src"] ? (
+                  <ChevronDown className="w-2.5 h-2.5 text-[#858585]" />
+                ) : (
+                  <ChevronRight className="w-2.5 h-2.5 text-[#858585]" />
+                )}
+                {expandedFolders["src"] ? (
+                  <FolderOpen className="w-2.5 h-2.5 text-[#dcb67a]" />
+                ) : (
+                  <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
+                )}
+                <span className="font-semibold text-white">src</span>
+              </div>
+
+              {expandedFolders["src"] && (
+                <div className="pl-2 space-y-0.5">
+                  {/* Folder app */}
+                  <div>
+                    <div
+                      onClick={() => toggleFolder("app")}
+                      className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+                    >
+                      {expandedFolders["app"] ? (
+                        <ChevronDown className="w-2 h-2 text-[#858585]" />
+                      ) : (
+                        <ChevronRight className="w-2 h-2 text-[#858585]" />
+                      )}
+                      <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
+                      <span>app</span>
+                    </div>
+                    {expandedFolders["app"] && (
+                      <div className="pl-3">
+                        <div
+                          onClick={() => openFile("page.tsx")}
+                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                            activeFileId === "page.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
+                          }`}
+                        >
+                          {getFileIcon("page.tsx")}
+                          <span className="truncate">page.tsx</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Folder components */}
+                  <div>
+                    <div
+                      onClick={() => toggleFolder("components")}
+                      className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+                    >
+                      {expandedFolders["components"] ? (
+                        <ChevronDown className="w-2 h-2 text-[#858585]" />
+                      ) : (
+                        <ChevronRight className="w-2 h-2 text-[#858585]" />
+                      )}
+                      <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
+                      <span>components</span>
+                    </div>
+                    {expandedFolders["components"] && (
+                      <div className="pl-3 space-y-0.5">
+                        <div
+                          onClick={() => openFile("Hero.tsx")}
+                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                            activeFileId === "Hero.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
+                          }`}
+                        >
+                          {getFileIcon("Hero.tsx")}
+                          <span className="truncate">Hero.tsx</span>
+                        </div>
+                        <div
+                          onClick={() => openFile("Projects.tsx")}
+                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                            activeFileId === "Projects.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
+                          }`}
+                        >
+                          {getFileIcon("Projects.tsx")}
+                          <span className="truncate">Projects.tsx</span>
+                        </div>
+                        <div
+                          onClick={() => openFile("ContadorEstatisticas.tsx")}
+                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                            activeFileId === "ContadorEstatisticas.tsx" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
+                          }`}
+                        >
+                          {getFileIcon("ContadorEstatisticas.tsx")}
+                          <span className="truncate">Contador.tsx</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Folder styles */}
+                  <div>
+                    <div
+                      onClick={() => toggleFolder("styles")}
+                      className="flex items-center gap-1 cursor-pointer hover:bg-[#2a2d2e] px-1 py-0.5 rounded"
+                    >
+                      {expandedFolders["styles"] ? (
+                        <ChevronDown className="w-2 h-2 text-[#858585]" />
+                      ) : (
+                        <ChevronRight className="w-2 h-2 text-[#858585]" />
+                      )}
+                      <Folder className="w-2.5 h-2.5 text-[#dcb67a]" />
+                      <span>styles</span>
+                    </div>
+                    {expandedFolders["styles"] && (
+                      <div className="pl-3">
+                        <div
+                          onClick={() => openFile("globals.css")}
+                          className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                            activeFileId === "globals.css" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
+                          }`}
+                        >
+                          {getFileIcon("globals.css")}
+                          <span className="truncate">globals.css</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* package.json */}
             <div
-              key={file.name}
-              className={`h-6 px-2.5 text-[9px] font-sans rounded-t-[4px] flex items-center border border-b-0 transition-colors ${
-                idx === phase.fileIndex
-                  ? "bg-[#1e1e1e] border-[#3b3b3b] text-[#ffffff]"
-                  : "bg-[#2d2d2d] border-transparent text-[#9da3ad]"
+              onClick={() => openFile("package.json")}
+              className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                activeFileId === "package.json" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
               }`}
             >
-              {file.name}
+              {getFileIcon("package.json")}
+              <span className="truncate">package.json</span>
             </div>
-          ))}
+
+            {/* README.md */}
+            <div
+              onClick={() => openFile("README.md")}
+              className={`flex items-center gap-1 cursor-pointer px-1 py-0.5 rounded ${
+                activeFileId === "README.md" ? "bg-[#37373d] text-white" : "hover:bg-[#2a2d2e]"
+              }`}
+            >
+              {getFileIcon("README.md")}
+              <span className="truncate">README.md</span>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-[28px_112px_1fr] h-[calc(100%-52px)]">
-          <aside className="border-r border-white/10 bg-[#333333] flex flex-col items-center pt-2 gap-2">
-            <span className="size-1.5 rounded-full bg-[#59a6ff]" />
-            <span className="size-1.5 rounded-full bg-[#7c7c7c]" />
-            <span className="size-1.5 rounded-full bg-[#7c7c7c]" />
-            <span className="size-1.5 rounded-full bg-[#7c7c7c]" />
-          </aside>
-
-          <aside className="border-r border-white/10 bg-[#252526] p-1.5">
-            <div className="text-[8px] uppercase tracking-widest text-[#9da3ad] mb-1.5">Explorer</div>
-            <div className="space-y-1 text-[8px] font-mono">
-              <div className="text-[#9da3ad]">src</div>
-              <div className="pl-2 text-[#9da3ad]">app</div>
-              {FILES.map((file, idx) => (
+        {/* 4. EDITOR MAIN CONTAINER */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#1e1e1e]">
+          {/* TABS BAR */}
+          <div className="h-5 sm:h-6 bg-[#252526] flex items-center overflow-x-auto vscode-scrollbar border-b border-[#1e1e1e]">
+            {openTabs.map((tabId) => {
+              const file = INITIAL_FILES.find((f) => f.id === tabId);
+              if (!file) return null;
+              const isActive = activeFileId === tabId;
+              return (
                 <div
-                  key={file.name}
-                  className={`pl-3 py-0.5 rounded transition-colors ${
-                    idx === phase.fileIndex ? "bg-[#094771] text-[#ffffff]" : "text-[#c5c5c5]"
+                  key={tabId}
+                  onClick={() => setActiveFileId(tabId)}
+                  className={`h-full px-2 text-[8px] sm:text-[9px] flex items-center gap-1.5 border-r border-[#1e1e1e] cursor-pointer transition-colors shrink-0 ${
+                    isActive
+                      ? "bg-[#1e1e1e] text-white border-t-2 border-t-[#007acc]"
+                      : "bg-[#2d2d2d] text-[#969696] hover:bg-[#282828]"
                   }`}
                 >
-                  {file.name}
+                  {getFileIcon(file.name)}
+                  <span>{file.name}</span>
+                  <X
+                    onClick={(e) => closeTab(e, tabId)}
+                    className="w-2.5 h-2.5 rounded hover:bg-white/20 p-0.5 text-[#969696] hover:text-white"
+                  />
                 </div>
-              ))}
+              );
+            })}
+          </div>
+
+          {/* BREADCRUMBS */}
+          <div className="h-3.5 sm:h-4 bg-[#1e1e1e] border-b border-[#252526] px-2 flex items-center text-[7.5px] sm:text-[8.5px] text-[#858585] font-mono gap-1">
+            <span>{activeFile.folder}</span>
+            <span>&gt;</span>
+            <span className="text-[#cccccc]">{activeFile.name}</span>
+          </div>
+
+          {/* INTERACTIVE CODE EDITING AREA */}
+          <div className="flex-1 flex overflow-hidden relative">
+            {/* CODE EDITOR CONTAINER */}
+            <div className="flex-1 flex overflow-hidden relative font-mono text-[8px] sm:text-[9.5px] leading-4 sm:leading-5">
+              {/* Line numbers column */}
+              <div className="w-5 sm:w-7 select-none text-right pr-1.5 text-[#6e7681] bg-[#1e1e1e] border-r border-[#2d2d2d] py-1 shrink-0 overflow-hidden">
+                <div style={{ transform: `translateY(-${scrollPos.top}px)` }}>
+                  {lines.map((_, idx) => (
+                    <div key={idx} className="h-4 sm:h-5">
+                      {idx + 1}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Code display layer + Real Editable Textarea overlay */}
+              <div className="flex-1 relative overflow-hidden p-1">
+                {/* Visual Highlighted Code Layer */}
+                <div
+                  className="absolute inset-0 p-1 pointer-events-none font-mono whitespace-pre overflow-hidden text-[#d4d4d4]"
+                  style={{ transform: `translate(-${scrollPos.left}px, -${scrollPos.top}px)` }}
+                >
+                  {lines.map((line, idx) => (
+                    <div key={idx} className="h-4 sm:h-5">
+                      {renderSyntaxLine(line, activeFile.language)}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Real Textarea Overlay allowing cursor placement, typing, selection, backspace, copy, paste, undo/redo */}
+                <textarea
+                  ref={textareaRef}
+                  value={currentContent}
+                  onChange={handleTextChange}
+                  onScroll={handleScroll}
+                  onClick={(e) => updateCursorInfo(e.currentTarget)}
+                  onKeyUp={(e) => updateCursorInfo(e.currentTarget)}
+                  spellCheck={false}
+                  className="absolute inset-0 p-1 font-mono text-transparent caret-[#007acc] bg-transparent resize-none outline-none overflow-auto vscode-scrollbar whitespace-pre leading-4 sm:leading-5 selection:bg-[#264f78] selection:text-transparent w-full h-full"
+                />
+              </div>
             </div>
-          </aside>
 
-          <div className="relative bg-[#1e1e1e]">
-            <div className="h-6 border-b border-white/10 px-2 flex items-center justify-between text-[8px] font-mono text-[#9da3ad]">
-              <span>{activeFile.name}</span>
-              <span>{activeFile.language}</span>
+            {/* VISUAL MINIMAP */}
+            <div className="w-5 sm:w-8 bg-[#1e1e1e] border-l border-[#252526] p-0.5 select-none pointer-events-none hidden xs:block shrink-0">
+              <div className="space-y-0.5 opacity-40">
+                {lines.slice(0, 25).map((line, idx) => (
+                  <div
+                    key={idx}
+                    className="h-0.5 bg-[#4f4f4f] rounded"
+                    style={{ width: `${Math.min(100, Math.max(15, line.length * 2))}%` }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 5. VISUAL TERMINAL (STRICTLY NON-INTERACTIVE) */}
+          <div className="h-12 sm:h-16 bg-[#1e1e1e] border-t border-[#2d2d2d] flex flex-col shrink-0">
+            <div className="h-3.5 sm:h-4 bg-[#252526] px-2 flex items-center gap-3 text-[7.5px] sm:text-[8.5px] font-mono text-[#858585] border-b border-[#1e1e1e]">
+              <span className="text-white border-b-2 border-[#007acc] pb-0.5 font-semibold flex items-center gap-1">
+                <TerminalIcon className="w-2.5 h-2.5" /> TERMINAL
+              </span>
+              <span>PROBLEMS (0)</span>
+              <span>OUTPUT</span>
+              <span>DEBUG CONSOLE</span>
             </div>
 
-            <div className="p-2 font-mono text-[8.5px] leading-4 text-[#d4d4d4]">
-              {Array.from({ length: Math.max(visibleLines.length, 10) }).map((_, idx) => {
-                const lineNumber = idx + 1;
-                const lineText = visibleLines[idx] ?? "";
-                return (
-                  <div key={lineNumber} className="grid grid-cols-[16px_1fr] gap-2">
-                    <span className="text-[#6e7681] text-right select-none">{lineNumber}</span>
-                    <span className="whitespace-pre-wrap break-words">{renderLine(lineText)}</span>
-                  </div>
-                );
-              })}
+            {/* Terminal Output Logs (Non-interactive pointer-events-none) */}
+            <div className="flex-1 p-1 font-mono text-[7.5px] sm:text-[8.5px] text-[#cccccc] space-y-0.5 overflow-hidden select-none pointer-events-none bg-[#181818]">
+              <div className="flex items-center gap-1 text-[#3794ff]">
+                <span>[portfolio-dev]</span>
+                <span className="text-white">npm run dev</span>
+              </div>
+              <div className="text-[#858585]">▲ Next.js 16.3.0 - Local: http://localhost:3000</div>
+              <div className="text-[#4ec9b0] flex items-center gap-1">
+                <Check className="w-2.5 h-2.5 text-[#3794ff]" />
+                <span>Ready in 0.8s — Editing active in memory</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 6. STATUS BAR */}
+          <div className="h-3.5 sm:h-4 bg-[#007acc] text-white px-2 flex items-center justify-between text-[7px] sm:text-[8px] font-mono select-none shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1">
+                <GitBranch className="w-2.5 h-2.5" /> main*
+              </span>
+              <span>0 ⊗ 0 △</span>
             </div>
 
-            {!finished && cursorPoint && (
-              <motion.div
-                animate={{
-                  left: `${cursorPoint.x}%`,
-                  top: `${cursorPoint.y}%`,
-                }}
-                transition={{ duration: 0.28, ease: "easeInOut" }}
-                className="absolute pointer-events-none z-20"
-              >
-                <div className="w-0 h-0 border-l-[7px] border-l-white border-y-[5px] border-y-transparent rotate-[-18deg] drop-shadow-[0_0_4px_rgba(255,255,255,0.45)]" />
-              </motion.div>
-            )}
-
-            <div className="absolute bottom-0 left-0 right-0 h-5 border-t border-white/10 bg-[#007acc] px-2 flex items-center justify-between text-[8px] font-sans text-white">
-              <span>main</span>
-              <span>{elapsedMs >= TOTAL_MS ? "final frame" : "typing..."}</span>
+            <div className="flex items-center gap-2">
+              <span>
+                Ln {cursorPos.line}, Col {cursorPos.col}
+              </span>
+              <span className="hidden xs:inline">UTF-8</span>
+              <span>
+                {activeFile.name.endsWith(".css")
+                  ? "CSS"
+                  : activeFile.name.endsWith(".json")
+                  ? "JSON"
+                  : activeFile.name.endsWith(".md")
+                  ? "Markdown"
+                  : "TypeScript JSX"}
+              </span>
+              <span className="hidden xs:inline">Prettier ✓</span>
             </div>
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

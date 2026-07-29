@@ -9,6 +9,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useTheme } from "@/context/ThemeContext";
 import { IconeCelularAnimado } from "@/components/IconesAnimados";
+import SimuladorVSCode from "@/components/SimuladorVSCode";
 
 gsap.registerPlugin(useGSAP);
 gsap.registerPlugin(ScrollTrigger);
@@ -790,6 +791,27 @@ export default function ClientPage({
                 }`}
               />
 
+              {/* Camada Interativa do VS Code (Posicionada estritamente sobre a área interna da tela do notebook) */}
+              <AnimatePresence>
+                {powerStatus === "on" && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="absolute z-10 overflow-hidden rounded-t-[6px] sm:rounded-t-[8px] pointer-events-auto border border-[#2d2d2d]/60 shadow-2xl"
+                    style={{
+                      left: "22.2%",
+                      top: "10%",
+                      width: "55.3%",
+                      height: "61.7%",
+                    }}
+                  >
+                    <SimuladorVSCode powerStatus={powerStatus} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Overlay de Animação do Sistema Operacional durante Boot e Shutdown (Centralizado na tela do notebook) */}
               <AnimatePresence>
                 {(powerStatus === "starting" || powerStatus === "shutting-down") && (
@@ -807,29 +829,29 @@ export default function ClientPage({
             </div>
           </div>
 
-          <div className="max-w-[1440px] mx-auto w-full z-10 relative">
+          <div className="max-w-[1440px] mx-auto w-full z-10 relative pointer-events-none">
             {/* Bloco 1: Textos e Botões (Esquerda) */}
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-5xl">
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-5xl pointer-events-none">
               <h1
                 ref={(el) => {
                   heroMainContentRefs.current[0] = el;
                 }}
-                className="font-sans font-bold text-text-primary text-3xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight"
+                className="font-sans font-bold text-text-primary text-3xl sm:text-[60px] lg:text-[60px] xl:text-[60px] leading-[1.05] tracking-tight pointer-events-none"
               >
                 {isEditable ? (
                   <span
                     contentEditable={isEditable}
                     suppressContentEditableWarning
                     onBlur={(e) => updateEditableText("heroTitle", e.currentTarget.textContent || "")}
-                    className="outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent"
+                    className="outline-dashed outline-1 outline-accent/40 px-2 py-1 rounded focus:outline-accent pointer-events-auto"
                   >
                     {getEditableText("heroTitle", "Desenvolvendo Soluções")}
                   </span>
                 ) : (
-                  <span className="inline">
+                  <span className="inline pointer-events-none">
                     {getEditableText("heroTitle", "Desenvolvendo Soluções").split(" ").map((word, i, arr) => (
-                      <span key={i} className="overflow-hidden inline-block">
-                        <span data-hero-word className="inline-block">
+                      <span key={i} className="overflow-hidden inline-block pointer-events-none">
+                        <span data-hero-word className="inline-block pointer-events-none">
                           {word}{i < arr.length - 1 ? "\u00A0" : ""}
                         </span>
                       </span>
@@ -852,7 +874,7 @@ export default function ClientPage({
                       }
                       onUpdateHero({ ...heroSettings, messages: currentMessages });
                     }}
-                    className="border-r-2 border-accent pr-1 font-mono text-accent outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent"
+                    className="border-r-2 border-accent pr-1 font-mono text-accent outline-dashed outline-1 outline-accent/40 px-1 py-0.5 rounded focus:outline-accent pointer-events-auto"
                   >
                     {heroSettings?.messages?.[0] || "Nova mensagem da Hero"}
                   </span>
@@ -871,12 +893,12 @@ export default function ClientPage({
                 ref={(el) => {
                   heroMainContentRefs.current[1] = el;
                 }}
-                className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px]"
+                className="font-sans text-text-secondary text-base sm:text-lg leading-relaxed max-w-[500px] pointer-events-none"
               >
                 Fique a vontade para entrar em contato comigo.
               </p>
 
-              <div ref={heroButtonsRef} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
+              <div ref={heroButtonsRef} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2 pointer-events-auto">
                 <BotaoMagnetico>
                   <a
                     href="#projetos"
